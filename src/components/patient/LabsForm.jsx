@@ -39,33 +39,33 @@ export default function LabsForm({ data, setData, onNext }) {
   }, [watchedData]);
 
   const getStatusStyle = (key, value) => {
-    if (!value) return 'border-slate-200';
+    if (!value) return 'border-neutral-300';
     const v = parseFloat(value);
 
     if (key === 'hba1c') {
-      if (v < 5.7) return 'border-green-500 bg-green-50';
-      if (v < 7) return 'border-amber-500 bg-amber-50';
-      return 'border-red-500 bg-red-50';
+      if (v < 5.7) return 'border-success-500 bg-success-50';
+      if (v < 7) return 'border-warning-500 bg-warning-50';
+      return 'border-critical-500 bg-critical-50';
     }
 
     if (key === 'egfr') {
-      if (v >= 90) return 'border-green-500 bg-green-50';
-      if (v >= 60) return 'border-amber-500 bg-amber-50';
-      return 'border-red-500 bg-red-50';
+      if (v >= 90) return 'border-success-500 bg-success-50';
+      if (v >= 60) return 'border-warning-500 bg-warning-50';
+      return 'border-critical-500 bg-critical-50';
     }
 
-    return 'border-slate-200';
+    return 'border-neutral-300';
   };
 
   const getCkdStage = (egfr) => {
     if (!egfr) return null;
     const v = parseFloat(egfr);
 
-    if (v >= 90) return { stage: '1', label: 'Normal', color: 'bg-green-100 text-green-700' };
-    if (v >= 60) return { stage: '2', label: 'Mild', color: 'bg-amber-100 text-amber-700' };
-    if (v >= 30) return { stage: '3', label: 'Moderate', color: 'bg-orange-100 text-orange-700' };
-    if (v >= 15) return { stage: '4', label: 'Severe', color: 'bg-red-100 text-red-700' };
-    return { stage: '5', label: 'Failure', color: 'bg-red-100 text-red-700' };
+    if (v >= 90) return { stage: '1', label: 'Normal', color: 'bg-success-100 text-success-700' };
+    if (v >= 60) return { stage: '2', label: 'Mild', color: 'bg-warning-100 text-warning-700' };
+    if (v >= 30) return { stage: '3', label: 'Moderate', color: 'bg-warning-100 text-warning-700' };
+    if (v >= 15) return { stage: '4', label: 'Severe', color: 'bg-critical-100 text-critical-700' };
+    return { stage: '5', label: 'Failure', color: 'bg-critical-100 text-critical-700' };
   };
 
   const onSubmit = (formData) => {
@@ -78,13 +78,14 @@ export default function LabsForm({ data, setData, onNext }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Laboratory Values</h2>
-        <p className="text-slate-500 text-sm">HbA1c and eGFR are required for ML prediction</p>
+      {/* Section Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-neutral-900 font-display mb-1">Laboratory Values</h2>
+        <p className="text-neutral-600 text-sm">Enter critical lab values for clinical assessment</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
           <div className="grid grid-cols-2 gap-4">
             {LABS.map(({ key, label, unit, normal, critical }) => {
               const value = watch(key);
@@ -93,11 +94,11 @@ export default function LabsForm({ data, setData, onNext }) {
 
               return (
                 <div key={key}>
-                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
+                  <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 mb-1.5">
                     {label}
                     {critical && (
-                      <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 text-[10px] rounded font-medium">
-                        PRIMARY
+                      <span className="px-1.5 py-0.5 bg-critical-100 text-critical-700 text-[10px] rounded-sm font-semibold">
+                        REQUIRED
                       </span>
                     )}
                   </label>
@@ -145,23 +146,23 @@ export default function LabsForm({ data, setData, onNext }) {
 
           {/* CKD Stage Display */}
           {ckd && (
-            <div className="mt-4 p-3 bg-slate-50 rounded-lg flex items-center gap-3">
-              <Activity className="w-5 h-5 text-slate-600 flex-shrink-0" />
+            <div className="mt-5 p-4 bg-neutral-50 border border-neutral-200 rounded-lg flex items-center gap-3">
+              <Activity className="w-5 h-5 text-neutral-700 flex-shrink-0" />
               <div>
-                <p className="text-xs text-slate-500 mb-1">CKD Stage</p>
-                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${ckd.color}`}>
-                  Stage {ckd.stage}: {ckd.label}
+                <p className="text-xs text-neutral-600 mb-1.5 font-medium">Kidney Function Status</p>
+                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold ${ckd.color}`}>
+                  Stage {ckd.stage} - {ckd.label}
                 </span>
               </div>
             </div>
           )}
 
           {/* Navigation */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-8 flex justify-end">
             <button
               type="submit"
               disabled={!isValid}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               Next: Blood Sugar <ChevronRight className="w-4 h-4" />
             </button>

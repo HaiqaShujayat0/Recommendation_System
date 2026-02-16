@@ -91,16 +91,16 @@ export default function RecommendationList({ patientData }) {
         />
       )}
 
-      <div className="mb-5 flex items-center justify-between flex-wrap gap-3">
+      <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800 font-display">AI Medication Recommendations</h2>
-          <p className="text-slate-500 text-sm">Based on patient profile (dummy data)</p>
+          <h2 className="text-2xl font-bold text-neutral-900 font-display mb-1">AI Medication Recommendations</h2>
+          <p className="text-neutral-600 text-sm">Clinical decision support based on patient profile and guidelines</p>
         </div>
         <button
           type="button"
           onClick={generate}
           disabled={isLoading}
-          className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium disabled:opacity-50"
+          className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-semibold disabled:opacity-50 transition-colors shadow-sm"
         >
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -112,30 +112,33 @@ export default function RecommendationList({ patientData }) {
       </div>
 
       {patientData && (
-        <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-3 mb-4 flex items-center gap-4 flex-wrap text-sm">
-          <span className="text-slate-500">
-            HbA1c:{' '}
-            <strong
-              className={
-                parseFloat(patientData.labs?.hba1c) > 7 ? 'text-red-500' : 'text-green-600'
-              }
+        <div className="bg-gradient-to-r from-neutral-50 to-primary-50 rounded-lg shadow-sm border border-neutral-200 p-4 mb-6 flex items-center gap-6 flex-wrap text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-neutral-600 font-medium">HbA1c:</span>
+            <span
+              className={`font-bold px-2 py-1 rounded text-xs ${
+                parseFloat(patientData.labs?.hba1c) > 7 ? 'bg-critical-100 text-critical-700' : 'bg-success-100 text-success-700'
+              }`}
             >
               {patientData.labs?.hba1c || '--'}%
-            </strong>
-          </span>
-          <span className="text-slate-500">
-            eGFR:{' '}
-            <strong
-              className={
-                parseFloat(patientData.labs?.egfr) < 60 ? 'text-amber-500' : 'text-green-600'
-              }
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-neutral-600 font-medium">eGFR:</span>
+            <span
+              className={`font-bold px-2 py-1 rounded text-xs ${
+                parseFloat(patientData.labs?.egfr) < 60 ? 'bg-warning-100 text-warning-700' : 'bg-success-100 text-success-700'
+              }`}
             >
               {patientData.labs?.egfr || '--'}
-            </strong>
-          </span>
-          <span className="text-slate-500">
-            BMI: <strong>{patientData.demographics?.bmi ?? '--'}</strong>
-          </span>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-neutral-600 font-medium">BMI:</span>
+            <span className="font-bold px-2 py-1 bg-neutral-100 text-neutral-700 rounded text-xs">
+              {patientData.demographics?.bmi ?? '--'}
+            </span>
+          </div>
         </div>
       )}
 
@@ -185,14 +188,14 @@ export default function RecommendationList({ patientData }) {
       )}
 
       {!isLoading && recommendations.length === 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-10 text-center">
-          <Brain className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="font-medium text-slate-600 mb-1">No Recommendations Yet</h3>
-          <p className="text-slate-400 text-sm mb-4">Click Generate to load sample recommendations</p>
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-12 text-center">
+          <Brain className="w-14 h-14 text-neutral-300 mx-auto mb-4" />
+          <h3 className="font-semibold text-neutral-700 text-lg mb-2">No Recommendations Generated</h3>
+          <p className="text-neutral-500 text-sm mb-6">Click the button above to analyze the patient data and generate AI-powered medication recommendations based on clinical guidelines</p>
           <button
             type="button"
             onClick={generate}
-            className="px-5 py-2 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm"
+            className="px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-semibold transition-colors shadow-sm"
           >
             Generate Recommendations
           </button>

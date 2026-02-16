@@ -72,11 +72,11 @@ export default function DemographicsForm({ data, setData, onNext }) {
    * Get BMI styling based on value
    */
   const getBmiStyle = (bmi) => {
-    if (!bmi) return 'bg-slate-100 text-slate-500';
-    if (bmi < 18.5) return 'bg-amber-100 text-amber-700';
-    if (bmi < 25) return 'bg-green-100 text-green-700';
-    if (bmi < 30) return 'bg-amber-100 text-amber-700';
-    return 'bg-red-100 text-red-700';
+    if (!bmi) return 'bg-neutral-100 text-neutral-600';
+    if (bmi < 18.5) return 'bg-warning-100 text-warning-700';
+    if (bmi < 25) return 'bg-success-100 text-success-700';
+    if (bmi < 30) return 'bg-warning-100 text-warning-700';
+    return 'bg-critical-100 text-critical-700';
   };
 
   const getBmiLabel = (bmi) => {
@@ -97,13 +97,14 @@ export default function DemographicsForm({ data, setData, onNext }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Patient Demographics</h2>
-        <p className="text-slate-500 text-sm">Basic information for the care plan</p>
+      {/* Section Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-neutral-900 font-display mb-1">Patient Demographics</h2>
+        <p className="text-neutral-600 text-sm">Enter basic patient information for the clinical assessment</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
           <div className="grid grid-cols-2 gap-4">
             <Input
               label="MR Number"
@@ -169,31 +170,33 @@ export default function DemographicsForm({ data, setData, onNext }) {
 
             {/* Gender Selection */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Gender <span className="text-red-500">*</span>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">
+                Gender <span className="text-critical-500">*</span>
               </label>
-              <div className="flex gap-4">
+              <div className="flex gap-5">
                 {['Male', 'Female'].map((g) => (
                   <label key={g} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
                       value={g}
                       {...register('gender', { required: 'Gender is required' })}
-                      className="w-4 h-4 text-primary-900 focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-600 focus:ring-primary-500"
                     />
-                    <span className="text-sm text-slate-700">{g}</span>
+                    <span className="text-sm text-neutral-700">{g}</span>
                   </label>
                 ))}
               </div>
               {errors.gender && (
-                <p className="text-xs text-red-600 mt-1">{errors.gender.message}</p>
+                <p className="text-xs text-critical-600 mt-2 flex items-center gap-1">
+                  <span className="inline-block">⚠</span> {errors.gender.message}
+                </p>
               )}
             </div>
 
             {/* Age Display (read-only, auto-calculated) */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Age</label>
-              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 text-sm">
+              <label className="block text-sm font-medium text-neutral-700 mb-1.5">Age</label>
+              <div className="px-3.5 py-2.5 bg-neutral-50 border-2 border-neutral-300 rounded-lg text-neutral-700 text-sm font-medium">
                 {currentAge || '--'} years
               </div>
             </div>
@@ -240,17 +243,28 @@ export default function DemographicsForm({ data, setData, onNext }) {
 
             {/* BMI Display (read-only, auto-calculated) */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">BMI (Calculated)</label>
+              <label className="block text-sm font-medium text-neutral-700 mb-2">BMI (Auto-calculated)</label>
               <span
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${getBmiStyle(
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold ${getBmiStyle(
                   currentBmi
                 )}`}
               >
                 <Scale className="w-4 h-4" />
-                {currentBmi || '--'} kg/m²
-                {getBmiLabel(currentBmi)}
+                <span>{currentBmi || '--'} kg/m²</span>
+                <span className="text-xs opacity-75">{getBmiLabel(currentBmi)}</span>
               </span>
             </div>
+
+          {/* Navigation */}
+          <div className="mt-8 flex justify-end gap-3">
+            <button
+              type="submit"
+              disabled={!isValid}
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            >
+              Next: Health Issues <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
           </div>
 
           {/* Navigation */}

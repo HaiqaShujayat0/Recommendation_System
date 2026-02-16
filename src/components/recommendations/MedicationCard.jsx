@@ -3,28 +3,28 @@ import { CheckCircle, AlertTriangle, XCircle, Edit3 } from 'lucide-react';
 
 const statusConfig = {
   approved: {
-    border: 'border-green-500 bg-green-50',
+    border: 'border-success-500 bg-success-50',
     icon: CheckCircle,
-    iconClass: 'text-green-600',
-    bgIcon: 'bg-green-100',
+    iconClass: 'text-success-600',
+    bgIcon: 'bg-success-100',
   },
   warning: {
-    border: 'border-amber-500 bg-amber-50',
+    border: 'border-warning-500 bg-warning-50',
     icon: AlertTriangle,
-    iconClass: 'text-amber-600',
-    bgIcon: 'bg-amber-100',
+    iconClass: 'text-warning-600',
+    bgIcon: 'bg-warning-100',
   },
   modified: {
-    border: 'border-blue-500 bg-blue-50',
+    border: 'border-primary-500 bg-primary-50',
     icon: Edit3,
-    iconClass: 'text-blue-600',
-    bgIcon: 'bg-blue-100',
+    iconClass: 'text-primary-600',
+    bgIcon: 'bg-primary-100',
   },
   blocked: {
-    border: 'border-red-500 bg-red-50',
+    border: 'border-critical-500 bg-critical-50',
     icon: XCircle,
-    iconClass: 'text-red-600',
-    bgIcon: 'bg-red-100',
+    iconClass: 'text-critical-600',
+    bgIcon: 'bg-critical-100',
   },
 };
 
@@ -85,19 +85,19 @@ export default function MedicationCard({
           )}
 
           <div className="flex items-center gap-2 mb-2">
-            <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden max-w-[100px]">
-              <div
-                className={`h-full rounded-full ${
-                  recommendation.confidence >= 80
-                    ? 'bg-green-500'
-                    : recommendation.confidence >= 60
-                      ? 'bg-amber-500'
-                      : 'bg-red-500'
-                }`}
-                style={{ width: `${recommendation.confidence}%` }}
-              />
-            </div>
-            <span className="text-[10px] text-slate-500">{recommendation.confidence}%</span>
+              <div className="flex-1 h-2 bg-neutral-200 rounded-full overflow-hidden max-w-[120px]">
+                <div
+                  className={`h-full rounded-full ${
+                    recommendation.confidence >= 80
+                      ? 'bg-success-500'
+                      : recommendation.confidence >= 60
+                        ? 'bg-warning-500'
+                        : 'bg-critical-500'
+                  }`}
+                  style={{ width: `${recommendation.confidence}%` }}
+                />
+              </div>
+              <span className="text-[10px] text-neutral-600 font-semibold">{recommendation.confidence}%</span>
             {recommendation.guidelines?.[0] && (
               <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded hidden sm:inline">
                 {recommendation.guidelines[0]}
@@ -114,13 +114,13 @@ export default function MedicationCard({
         </div>
 
         {showActions && (
-          <div className="flex gap-1 flex-shrink-0">
+          <div className="flex gap-2 flex-shrink-0">
             {onAccept && (
               <button
                 type="button"
                 onClick={() => onAccept(recommendation)}
-                className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                title="Accept"
+                className="p-2 bg-success-600 text-white rounded-lg hover:bg-success-700 transition-colors shadow-sm"
+                title="Accept recommendation"
               >
                 <CheckCircle className="w-4 h-4" />
               </button>
@@ -129,8 +129,8 @@ export default function MedicationCard({
               <button
                 type="button"
                 onClick={() => onModify(recommendation)}
-                className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
-                title="Modify"
+                className="p-2 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors"
+                title="Modify dosage"
               >
                 <Edit3 className="w-4 h-4" />
               </button>
@@ -139,8 +139,8 @@ export default function MedicationCard({
               <button
                 type="button"
                 onClick={() => onReject(recommendation)}
-                className="p-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
-                title="Reject"
+                className="p-2 border-2 border-critical-300 text-critical-600 rounded-lg hover:bg-critical-50 transition-colors"
+                title="Reject recommendation"
               >
                 <XCircle className="w-4 h-4" />
               </button>

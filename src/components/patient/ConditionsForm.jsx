@@ -87,13 +87,14 @@ export default function ConditionsForm({ data, setData, onNext }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Health Issues & Conditions</h2>
-        <p className="text-slate-500 text-sm">Select all applicable conditions</p>
+      {/* Section Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-neutral-900 font-display mb-1">Health Issues & Conditions</h2>
+        <p className="text-neutral-600 text-sm">Select all medical conditions that apply to this patient</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
           <div className="space-y-2">
             {CONDITIONS.map(({ key, label, desc, required, warning }) => {
               const isChecked = watch(key);
@@ -101,10 +102,10 @@ export default function ConditionsForm({ data, setData, onNext }) {
                 <div
                   key={key}
                   onClick={() => toggle(key)}
-                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3.5 ${
                     isChecked
                       ? 'border-primary-500 bg-primary-50'
-                      : 'border-slate-200 hover:border-slate-300'
+                      : 'border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50'
                   } ${required ? 'cursor-not-allowed opacity-75' : ''}`}
                   role="button"
                   tabIndex={required ? -1 : 0}
@@ -115,27 +116,30 @@ export default function ConditionsForm({ data, setData, onNext }) {
                     }
                   }}
                 >
+                  {/* Custom Checkbox */}
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                      isChecked ? 'border-primary-500 bg-primary-500' : 'border-slate-300 bg-white'
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                      isChecked ? 'border-primary-600 bg-primary-600' : 'border-neutral-400 bg-white'
                     }`}
                   >
-                    {isChecked && <CheckCircle className="w-3 h-3 text-white" />}
+                    {isChecked && <CheckCircle className="w-4 h-4 text-white" />}
                   </div>
 
+                  {/* Condition Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 text-sm">{label}</p>
-                    <p className="text-xs text-slate-500">{desc}</p>
+                    <p className="font-semibold text-neutral-900 text-sm">{label}</p>
+                    <p className="text-xs text-neutral-500 mt-0.5">{desc}</p>
                   </div>
 
+                  {/* Status Badges */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {required && (
-                      <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full font-medium">
+                      <span className="px-2.5 py-0.5 bg-critical-100 text-critical-700 text-[10px] rounded-full font-semibold">
                         Required
                       </span>
                     )}
                     {warning && isChecked && (
-                      <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full flex items-center gap-1 font-medium">
+                      <span className="px-2.5 py-0.5 bg-critical-100 text-critical-700 text-[10px] rounded-full flex items-center gap-1 font-semibold">
                         <AlertTriangle className="w-3 h-3" />
                         Blocks Oral
                       </span>
@@ -147,10 +151,10 @@ export default function ConditionsForm({ data, setData, onNext }) {
           </div>
 
           {/* Navigation */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-8 flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-semibold transition-colors shadow-sm"
             >
               Next: Lab Values <ChevronRight className="w-4 h-4" />
             </button>

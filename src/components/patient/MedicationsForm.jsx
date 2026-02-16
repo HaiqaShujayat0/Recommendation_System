@@ -237,13 +237,14 @@ export default function MedicationsForm({ data, setData, onNext }) {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Current Medications</h2>
-        <p className="text-slate-500 text-sm">Enter current diabetes medications</p>
+      {/* Section Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-neutral-900 font-display mb-1">Current Medications</h2>
+        <p className="text-neutral-600 text-sm">Enter all diabetes medications the patient is currently taking</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {MEDICATIONS.map((med) => (
               <div
@@ -262,13 +263,13 @@ export default function MedicationsForm({ data, setData, onNext }) {
           </div>
 
           {/* Navigation */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-8 flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-6 py-2.5 bg-success-600 text-white rounded-lg hover:bg-success-700 text-sm font-semibold transition-colors shadow-sm"
             >
               <Brain className="w-4 h-4" />
-              Get AI Recommendations
+              Generate AI Recommendations
             </button>
           </div>
         </div>

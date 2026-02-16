@@ -11,13 +11,96 @@ body {
   font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f3f4f6;
+  color: #1f2937;
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* Focus ring for accessibility */
+/* Professional healthcare design system */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus ring for accessibility - Clinical Grade */
 *:focus-visible {
   @apply outline-2 outline-offset-2 outline-primary-500;
+}
+
+/* Semantic Design Tokens */
+:root {
+  --color-primary: #2694b8;
+  --color-primary-dark: #1e7a98;
+  --color-primary-light: #7fc4db;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-critical: #ef4444;
+  --color-neutral-bg: #f9fafb;
+  --color-neutral-border: #e5e7eb;
+  --color-neutral-text: #1f2937;
+  --color-neutral-text-muted: #6b7280;
+  
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Smooth transitions for clinical UI */
+@layer components {
+  .btn-primary {
+    @apply px-5 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium text-sm;
+  }
+
+  .btn-secondary {
+    @apply px-5 py-2.5 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors font-medium text-sm;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none transition-colors text-sm;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-neutral-200;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-md hover:border-primary-300 transition-all;
+  }
+
+  .form-section {
+    @apply card p-5;
+  }
+
+  .section-header {
+    @apply mb-5;
+  }
+
+  .section-title {
+    @apply text-xl font-bold text-neutral-800 font-display;
+  }
+
+  .section-subtitle {
+    @apply text-neutral-500 text-sm;
+  }
+
+  .label-required {
+    @apply text-red-500 ml-1;
+  }
+
+  .error-text {
+    @apply text-xs text-critical-600 mt-1;
+  }
+
+  .text-muted {
+    @apply text-neutral-500 text-sm;
+  }
 }

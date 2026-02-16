@@ -62,21 +62,21 @@ export default function GlucoseForm({ data, setData, onNext }) {
   }, [watchedData]);
 
   const getColor = (value) => {
-    if (!value) return 'border-slate-200';
+    if (!value) return 'border-neutral-300';
     const v = parseFloat(value);
 
-    if (v < 70) return 'border-red-500 bg-red-50';
-    if (v <= 140) return 'border-green-500 bg-green-50';
-    if (v <= 180) return 'border-amber-500 bg-amber-50';
-    return 'border-red-500 bg-red-50';
+    if (v < 70) return 'border-critical-500 bg-critical-50';
+    if (v <= 140) return 'border-success-500 bg-success-50';
+    if (v <= 180) return 'border-warning-500 bg-warning-50';
+    return 'border-critical-500 bg-critical-50';
   };
 
   const hasHypo = Object.values(watchedData).some((v) => v && parseFloat(v) < 70);
 
   const getAverageColor = (average) => {
-    if (!average) return 'bg-slate-100';
-    if (average <= 154) return 'bg-green-100';
-    return 'bg-amber-100';
+    if (!average) return 'bg-neutral-100';
+    if (average <= 154) return 'bg-success-100';
+    return 'bg-warning-100';
   };
 
   const onSubmit = (formData) => {
@@ -88,13 +88,14 @@ export default function GlucoseForm({ data, setData, onNext }) {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Daily Blood Sugar</h2>
-        <p className="text-slate-500 text-sm">Enter glucose readings in mg/dL</p>
+      {/* Section Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-neutral-900 font-display mb-1">Daily Blood Glucose</h2>
+        <p className="text-neutral-600 text-sm">Enter glucose readings at different times of day (mg/dL)</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
           <div className="space-y-3">
             {TIME_SLOTS.map(({ key, label, target }) => {
               const value = watch(key);
@@ -143,20 +144,20 @@ export default function GlucoseForm({ data, setData, onNext }) {
 
           {/* Hypoglycemia Warning */}
           {hasHypo && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse flex-shrink-0" />
+            <div className="mt-5 p-4 bg-critical-50 border-l-4 border-critical-500 rounded-lg flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-critical-600 animate-pulse flex-shrink-0" />
               <div>
-                <p className="font-medium text-red-700 text-sm">Hypoglycemia Detected</p>
-                <p className="text-xs text-red-600">Reading below 70 mg/dL</p>
+                <p className="font-semibold text-critical-900 text-sm">⚠ Hypoglycemia Risk Detected</p>
+                <p className="text-xs text-critical-700 mt-0.5">Glucose reading below 70 mg/dL - increased risk of severe hypoglycemia</p>
               </div>
             </div>
           )}
 
           {/* Navigation */}
-          <div className="mt-6 flex justify-end">
+          <div className="mt-8 flex justify-end">
             <button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 text-sm font-semibold transition-colors shadow-sm"
             >
               Next: Medications <ChevronRight className="w-4 h-4" />
             </button>
