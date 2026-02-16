@@ -21,17 +21,17 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
   }, [search]);
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       {/* Header Section */}
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-neutral-900 font-display mb-2">Patient Dashboard</h2>
-        <p className="text-neutral-600 text-base">Search for an existing patient or create a new profile</p>
+      <div className="text-center mb-10">
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-primary-700 to-primary-600 bg-clip-text text-transparent font-display mb-3">GLYERAL Dashboard</h2>
+        <p className="text-neutral-700 text-lg">Comprehensive patient management and AI-powered medication recommendations</p>
       </div>
 
       {/* Search Bar */}
-      <div className="relative mb-6">
+      <div className="relative mb-7">
         <Search
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 w-5 h-5"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-400 w-5 h-5"
           aria-hidden
         />
         <input
@@ -39,7 +39,7 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
           placeholder="Search by patient name, MR number, or ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-12 pr-4 py-3.5 border-2 border-neutral-300 rounded-xl focus:border-primary-500 focus:outline-none text-sm transition-colors bg-white"
+          className="w-full pl-12 pr-4 py-4 border-2 border-primary-200 rounded-xl focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-100 text-sm transition-all bg-white/90 backdrop-blur-sm font-medium"
           aria-label="Search patients by name or medical record number"
         />
       </div>
@@ -48,19 +48,19 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
       <button
         type="button"
         onClick={onNewPatient}
-        className="flex items-center gap-2 px-6 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors mb-7 text-sm font-semibold shadow-sm"
+        className="flex items-center gap-2 px-7 py-3 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl hover:from-primary-700 hover:to-primary-600 transition-all duration-300 mb-8 text-sm font-bold shadow-lg hover:shadow-xl"
       >
-        <Plus className="w-4 h-4" />
+        <Plus className="w-5 h-5" />
         Create New Patient
       </button>
 
       {/* Stats Cards Section */}
-      <StatsCards className="mb-8" />
+      <StatsCards className="mb-10" />
 
       {/* Recent Patients List */}
-      <div className="bg-white rounded-xl shadow-sm border border-neutral-200 overflow-hidden">
-        <div className="px-4 py-3.5 border-b border-neutral-200 bg-neutral-50">
-          <h3 className="font-semibold text-neutral-700 text-sm uppercase tracking-wide">Recent Patients</h3>
+      <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border-2 border-primary-100 overflow-hidden">
+        <div className="px-6 py-4 border-b-2 border-primary-100 bg-gradient-to-r from-primary-50 to-white">
+          <h3 className="font-bold text-primary-700 text-sm uppercase tracking-widest">Active Patients</h3>
         </div>
         <div className="divide-y divide-neutral-200">
           {filtered.length === 0 ? (

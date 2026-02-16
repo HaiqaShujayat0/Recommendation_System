@@ -106,7 +106,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
       <Header
         selectedPatient={selectedPatient}
         onMenuClick={toggleSidebar}
@@ -121,7 +121,7 @@ export default function App() {
             open={sidebarOpen}
           />
         )}
-        <main className="flex-1 overflow-auto p-5 md:p-8 bg-gradient-to-b from-neutral-50 to-white" role="main">
+        <main className="flex-1 overflow-auto p-6 md:p-8 bg-gradient-to-br from-blue-50 via-white to-purple-50" role="main">
           {renderMain()}
         </main>
       </div>

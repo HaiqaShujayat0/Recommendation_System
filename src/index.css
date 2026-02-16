@@ -11,7 +11,8 @@ body {
   font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f3f4f6;
+  background: linear-gradient(135deg, #f0f7ff 0%, #f5f1ff 50%, #fef5f0 100%);
+  background-attachment: fixed;
   color: #1f2937;
 }
 
@@ -19,7 +20,7 @@ body {
   min-height: 100vh;
 }
 
-/* Professional healthcare design system */
+/* Premium healthcare design system */
 html {
   scroll-behavior: smooth;
 }
@@ -48,59 +49,81 @@ html {
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(38, 148, 184, 0.08);
+  --shadow-md: 0 4px 16px rgba(38, 148, 184, 0.12), 0 2px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(38, 148, 184, 0.15), 0 4px 8px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 20px 48px rgba(38, 148, 184, 0.2), 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Smooth transitions for clinical UI */
+/* Premium transitions */
 @layer components {
   .btn-primary {
-    @apply px-5 py-2.5 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium text-sm;
+    @apply px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-500 text-white rounded-xl hover:from-primary-700 hover:to-primary-600 transition-all duration-300 font-semibold text-sm shadow-lg hover:shadow-xl;
   }
 
   .btn-secondary {
-    @apply px-5 py-2.5 border border-neutral-300 text-neutral-700 rounded-lg hover:bg-neutral-50 transition-colors font-medium text-sm;
+    @apply px-6 py-3 border-2 border-primary-200 text-primary-700 rounded-xl hover:bg-primary-50 transition-all duration-300 font-semibold text-sm;
   }
 
   .input-field {
-    @apply w-full px-3 py-2 border-2 border-neutral-200 rounded-lg focus:border-primary-500 focus:outline-none transition-colors text-sm;
+    @apply w-full px-4 py-3 border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-100 transition-all text-sm bg-white;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-neutral-200;
+    @apply bg-white/80 backdrop-blur-sm rounded-2xl shadow-md border border-white/60;
   }
 
   .card-hover {
-    @apply card hover:shadow-md hover:border-primary-300 transition-all;
+    @apply card hover:shadow-lg hover:border-primary-200/80 transition-all duration-300;
   }
 
   .form-section {
-    @apply card p-5;
+    @apply card p-7;
   }
 
   .section-header {
-    @apply mb-5;
+    @apply mb-7;
   }
 
   .section-title {
-    @apply text-xl font-bold text-neutral-800 font-display;
+    @apply text-2xl font-bold bg-gradient-to-r from-primary-700 to-primary-600 bg-clip-text text-transparent font-display;
   }
 
   .section-subtitle {
-    @apply text-neutral-500 text-sm;
+    @apply text-neutral-600 text-sm font-medium mt-2;
   }
 
   .label-required {
-    @apply text-red-500 ml-1;
+    @apply text-critical-500 ml-1 font-bold;
   }
 
   .error-text {
-    @apply text-xs text-critical-600 mt-1;
+    @apply text-xs text-critical-600 mt-2 font-medium;
   }
 
   .text-muted {
     @apply text-neutral-500 text-sm;
+  }
+
+  /* Premium badge styling */
+  .badge {
+    @apply px-3 py-1.5 rounded-lg text-xs font-semibold inline-block;
+  }
+
+  .badge-success {
+    @apply badge bg-success-100 text-success-700;
+  }
+
+  .badge-warning {
+    @apply badge bg-warning-100 text-warning-700;
+  }
+
+  .badge-critical {
+    @apply badge bg-critical-100 text-critical-700;
+  }
+
+  /* Premium card with gradient */
+  .card-gradient {
+    @apply card bg-gradient-to-br from-white/90 to-primary-50/50;
   }
 }
