@@ -1,0 +1,4439 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+glyeral.jsx
+GlyeralApp_v3.jsx
+index.html
+package.json
+postcss.config.js
+src/App.jsx
+src/components/audit/AuditTable.jsx
+src/components/dashboard/PatientCard.jsx
+src/components/dashboard/PatientSearch.jsx
+src/components/dashboard/StatsCards.jsx
+src/components/layout/Header.jsx
+src/components/layout/Sidebar.jsx
+src/components/patient/ConditionsForm.jsx
+src/components/patient/DemographicsForm.jsx
+src/components/patient/GlucoseForm.jsx
+src/components/patient/LabsForm.jsx
+src/components/patient/MedicationsForm.jsx
+src/components/patient/PatientDetailPlaceholder.jsx
+src/components/recommendations/MedicationCard.jsx
+src/components/recommendations/RecommendationList.jsx
+src/components/ui/Input.jsx
+src/data/dummyData.js
+src/index.css
+src/main.jsx
+tailwind.config.js
+vite.config.js
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# Dependencies
+node_modules/
+
+# Production build
+dist/
+
+# Vite
+.vite/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Local env files
+.env
+.env.*.local
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDE configs
+.vscode/
+.idea/
+</file>
+
+<file path="glyeral.jsx">
+import React, { useState } from 'react';
+import { Search, User, Activity, FlaskConical, Droplets, Pill, Brain, FileText, ChevronRight, AlertTriangle, CheckCircle, XCircle, Scale, Plus, ArrowLeft, Loader2 } from 'lucide-react';
+
+export default function GlyeralApp() {
+  const [currentScreen, setCurrentScreen] = useState('dashboard');
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patientData, setPatientData] = useState({
+    demographics: { mrNumber: '', firstName: '', lastName: '', dob: '', gender: '', age: 0, weight: '', height: '', bmi: 0 },
+    healthIssues: { dm: true, ckd: false, cad: false, hypertension: false, pregnancy: false },
+    labs: { hba1c: '', egfr: '' },
+    bloodSugar: { beforeBreakfast: '', beforeLunch: '', beforeDinner: '', beforeBed: '', average: 0 },
+    medications: { metformin: 0, glimepiride: 0, tradjenta: false, farxiga: 0, semaglutide: 0, glargine: 0 }
+  });
+  const [recommendations, setRecommendations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [actionedRecs, setActionedRecs] = useState({});
+
+  const navItems = [
+    { id: 'demographics', icon: User, label: 'Demographics' },
+    { id: 'conditions', icon: Activity, label: 'Health Issues' },
+    { id: 'labs', icon: FlaskConical, label: 'Lab Values' },
+    { id: 'glucose', icon: Droplets, label: 'Blood Sugar' },
+    { id: 'medications', icon: Pill, label: 'Medications' },
+    { id: 'recommendations', icon: Brain, label: 'Glyeral Recs' },
+    { id: 'audit', icon: FileText, label: 'Audit' }
+  ];
+
+  const selectPatient = (patient) => {
+    setSelectedPatient(patient);
+    setCurrentScreen('demographics');
+  };
+
+  const Dashboard = () => {
+    const [search, setSearch] = useState('');
+    const patients = [
+      { id: 1, mrNumber: 'MR-2024-001', name: 'John Smith', age: 58, gender: 'Male', hba1c: '8.2%' },
+      { id: 2, mrNumber: 'MR-2024-002', name: 'Maria Garcia', age: 62, gender: 'Female', hba1c: '7.5%' },
+      { id: 3, mrNumber: 'MR-2024-003', name: 'Robert Johnson', age: 45, gender: 'Male', hba1c: '9.1%' },
+    ];
+    const filtered = patients.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
+    
+    return (
+      <div className="max-w-3xl mx-auto">
+        <h2 className="text-2xl font-bold text-slate-800 text-center mb-4">Patient Search</h2>
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <input type="text" placeholder="Search patients..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-10 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none" />
+        </div>
+        <button onClick={() => selectPatient({ id: 0, mrNumber: 'NEW', name: 'New Patient' })} className="flex items-center gap-2 px-4 py-2 bg-blue-900 text-white rounded-lg mb-4 text-sm">
+          <Plus className="w-4 h-4" />New Patient
+        </button>
+        <div className="bg-white rounded-xl shadow border border-slate-100">
+          <div className="px-4 py-2 border-b bg-slate-50 font-semibold text-slate-700 text-sm">Recent Patients</div>
+          {filtered.map(patient => (
+            <div key={patient.id} onClick={() => selectPatient(patient)} className="px-4 py-3 hover:bg-blue-50 cursor-pointer flex items-center gap-3 border-b last:border-0">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <User className="w-5 h-5 text-blue-900" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-slate-800">{patient.name}</p>
+                <p className="text-xs text-slate-500">{patient.mrNumber} • {patient.age}y</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-slate-400">HbA1c</p>
+                <p className={`font-bold ${parseFloat(patient.hba1c) > 7 ? 'text-red-500' : 'text-green-600'}`}>{patient.hba1c}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-300" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const Demographics = () => {
+    const update = (field, value) => {
+      const d = { ...patientData.demographics, [field]: value };
+      if (field === 'dob' && value) {
+        d.age = new Date().getFullYear() - new Date(value).getFullYear();
+      }
+      if (d.weight && d.height) {
+        d.bmi = Math.round((parseFloat(d.weight) / Math.pow(parseFloat(d.height)/100, 2)) * 10) / 10;
+      }
+      setPatientData({ ...patientData, demographics: d });
+    };
+    
+    return (
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-5">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Demographics</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <input value={patientData.demographics.mrNumber} onChange={e => update('mrNumber', e.target.value)} className="px-3 py-2 border rounded-lg" placeholder="MR Number" />
+          <input value={patientData.demographics.firstName} onChange={e => update('firstName', e.target.value)} className="px-3 py-2 border rounded-lg" placeholder="First Name" />
+          <input value={patientData.demographics.lastName} onChange={e => update('lastName', e.target.value)} className="px-3 py-2 border rounded-lg" placeholder="Last Name" />
+          <input type="date" value={patientData.demographics.dob} onChange={e => update('dob', e.target.value)} className="px-3 py-2 border rounded-lg" />
+          <div className="flex gap-4 items-center col-span-2">
+            {['Male', 'Female'].map(g => (
+              <label key={g} className="flex items-center gap-2">
+                <input type="radio" checked={patientData.demographics.gender === g} onChange={() => update('gender', g)} />
+                {g}
+              </label>
+            ))}
+            <span className="ml-auto text-slate-500">Age: {patientData.demographics.age || '--'}</span>
+          </div>
+          <input type="number" value={patientData.demographics.weight} onChange={e => update('weight', e.target.value)} className="px-3 py-2 border rounded-lg" placeholder="Weight (kg)" />
+          <input type="number" value={patientData.demographics.height} onChange={e => update('height', e.target.value)} className="px-3 py-2 border rounded-lg" placeholder="Height (cm)" />
+          <div className="col-span-2 flex items-center gap-2">
+            <Scale className="w-4 h-4" />
+            <span className={`font-bold ${patientData.demographics.bmi > 30 ? 'text-red-500' : patientData.demographics.bmi > 25 ? 'text-amber-500' : 'text-green-600'}`}>
+              BMI: {patientData.demographics.bmi || '--'}
+            </span>
+          </div>
+        </div>
+        <button onClick={() => setCurrentScreen('conditions')} className="mt-4 w-full py-2 bg-blue-900 text-white rounded-lg flex items-center justify-center gap-2">
+          Next <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
+
+  const Conditions = () => {
+    const toggle = (key) => {
+      if (key !== 'dm') {
+        setPatientData({ ...patientData, healthIssues: { ...patientData.healthIssues, [key]: !patientData.healthIssues[key] } });
+      }
+    };
+    const conditions = [
+      { key: 'dm', label: 'Diabetes', required: true },
+      { key: 'ckd', label: 'CKD' },
+      { key: 'cad', label: 'CAD' },
+      { key: 'hypertension', label: 'Hypertension' },
+      { key: 'pregnancy', label: 'Pregnancy', warning: true }
+    ];
+    
+    return (
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-5">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Health Issues</h2>
+        <div className="space-y-2">
+          {conditions.map(({ key, label, required, warning }) => (
+            <div key={key} onClick={() => toggle(key)} className={`p-3 rounded-lg border-2 cursor-pointer flex items-center gap-3 ${patientData.healthIssues[key] ? 'border-blue-500 bg-blue-50' : 'border-slate-200'}`}>
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${patientData.healthIssues[key] ? 'bg-blue-500 border-blue-500' : 'border-slate-300'}`}>
+                {patientData.healthIssues[key] && <CheckCircle className="w-3 h-3 text-white" />}
+              </div>
+              <span className="flex-1 font-medium">{label}</span>
+              {required && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Required</span>}
+              {warning && patientData.healthIssues[key] && (
+                <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />Blocks Oral
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+        <button onClick={() => setCurrentScreen('labs')} className="mt-4 w-full py-2 bg-blue-900 text-white rounded-lg flex items-center justify-center gap-2">
+          Next <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
+
+  const Labs = () => {
+    const update = (key, value) => setPatientData({ ...patientData, labs: { ...patientData.labs, [key]: value } });
+    const getColor = (key, val) => {
+      if (!val) return 'border-slate-200';
+      const v = parseFloat(val);
+      if (key === 'hba1c') return v < 7 ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50';
+      if (key === 'egfr') return v >= 60 ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50';
+      return 'border-slate-200';
+    };
+    
+    return (
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-5">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Lab Values</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-slate-700">HbA1c (%)</label>
+            <input type="number" step="0.1" value={patientData.labs.hba1c} onChange={(e) => update('hba1c', e.target.value)} className={`w-full mt-1 px-3 py-2 border-2 rounded-lg ${getColor('hba1c', patientData.labs.hba1c)}`} placeholder="7.0" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700">eGFR (mL/min)</label>
+            <input type="number" value={patientData.labs.egfr} onChange={(e) => update('egfr', e.target.value)} className={`w-full mt-1 px-3 py-2 border-2 rounded-lg ${getColor('egfr', patientData.labs.egfr)}`} placeholder="90" />
+          </div>
+        </div>
+        <button onClick={() => setCurrentScreen('glucose')} className="mt-4 w-full py-2 bg-blue-900 text-white rounded-lg flex items-center justify-center gap-2">
+          Next <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
+
+  const Glucose = () => {
+    const update = (key, value) => {
+      const bs = { ...patientData.bloodSugar, [key]: value };
+      const vals = [bs.beforeBreakfast, bs.beforeLunch, bs.beforeDinner, bs.beforeBed].filter(v => v).map(v => parseFloat(v));
+      bs.average = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+      setPatientData({ ...patientData, bloodSugar: bs });
+    };
+    
+    return (
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-5">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Blood Sugar</h2>
+        <div className="space-y-3">
+          {['beforeBreakfast', 'beforeLunch', 'beforeDinner', 'beforeBed'].map(key => (
+            <div key={key} className="flex items-center gap-3">
+              <span className="w-32 text-sm">{key.replace('before', 'Before ')}</span>
+              <input type="number" value={patientData.bloodSugar[key]} onChange={(e) => update(key, e.target.value)} className="flex-1 px-3 py-2 border rounded-lg text-center" placeholder="--" />
+              <span className="text-xs text-slate-400">mg/dL</span>
+            </div>
+          ))}
+          <div className="flex items-center gap-3 pt-3 border-t">
+            <span className="w-32 text-sm font-bold">Average</span>
+            <div className={`flex-1 py-2 text-center rounded-lg font-bold ${patientData.bloodSugar.average <= 154 ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+              {patientData.bloodSugar.average || '--'} mg/dL
+            </div>
+          </div>
+        </div>
+        <button onClick={() => setCurrentScreen('medications')} className="mt-4 w-full py-2 bg-blue-900 text-white rounded-lg flex items-center justify-center gap-2">
+          Next <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    );
+  };
+
+  const Medications = () => {
+    const update = (key, value) => setPatientData({ ...patientData, medications: { ...patientData.medications, [key]: value } });
+    
+    return (
+      <div className="max-w-xl mx-auto bg-white rounded-xl shadow p-5">
+        <h2 className="text-xl font-bold text-slate-800 mb-4">Medications</h2>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <span>Metformin</span>
+            <div className="flex items-center gap-2">
+              <input type="range" min="0" max="2000" step="250" value={patientData.medications.metformin} onChange={(e) => update('metformin', parseFloat(e.target.value))} className="w-24" />
+              <span className="w-16 text-right text-sm">{patientData.medications.metformin}mg</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <span>Farxiga</span>
+            <select value={patientData.medications.farxiga} onChange={(e) => update('farxiga', parseFloat(e.target.value))} className="border rounded px-2 py-1">
+              {[0, 5, 10].map(v => <option key={v} value={v}>{v === 0 ? 'None' : `${v}mg`}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <span>Ozempic</span>
+            <div className="flex items-center gap-2">
+              <input type="range" min="0" max="2" step="0.25" value={patientData.medications.semaglutide} onChange={(e) => update('semaglutide', parseFloat(e.target.value))} className="w-24" />
+              <span className="w-16 text-right text-sm">{patientData.medications.semaglutide}mg</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between p-3 border rounded-lg">
+            <span>Glargine</span>
+            <div className="flex items-center gap-1">
+              <input type="number" min="0" max="100" value={patientData.medications.glargine} onChange={(e) => update('glargine', parseFloat(e.target.value) || 0)} className="w-16 px-2 py-1 border rounded text-right" />
+              <span className="text-sm">u</span>
+            </div>
+          </div>
+        </div>
+        <button onClick={() => setCurrentScreen('recommendations')} className="mt-4 w-full py-2 bg-green-600 text-white rounded-lg flex items-center justify-center gap-2">
+          <Brain className="w-4 h-4" />Get AI Recommendations
+        </button>
+      </div>
+    );
+  };
+
+  const Recommendations = () => {
+    const generate = () => {
+      setIsLoading(true);
+      setActionedRecs({});
+      setTimeout(() => {
+        const egfr = parseFloat(patientData.labs.egfr) || 100;
+        const hba1c = parseFloat(patientData.labs.hba1c) || 7;
+        const isPregnant = patientData.healthIssues.pregnancy;
+        setRecommendations([
+          { id: 1, med: 'Metformin', dose: egfr >= 45 ? '1000mg BID' : '500mg BID', confidence: 95, status: egfr < 30 || isPregnant ? 'blocked' : 'approved' },
+          { id: 2, med: 'Farxiga', dose: egfr >= 45 ? '10mg daily' : '5mg daily', confidence: 88, status: egfr < 20 || isPregnant ? 'blocked' : 'approved' },
+          { id: 3, med: 'Semaglutide', dose: hba1c > 8 ? '0.5mg weekly' : '0.25mg weekly', confidence: 85, status: isPregnant ? 'blocked' : 'approved' },
+          { id: 4, med: 'Glargine', dose: hba1c > 9 ? '20u dinner' : '10u dinner', confidence: 80, status: 'approved' },
+        ]);
+        setIsLoading(false);
+      }, 1500);
+    };
+
+    return (
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-slate-800">Glyeral Recommendations</h2>
+          <button onClick={generate} disabled={isLoading} className="px-4 py-2 bg-blue-900 text-white rounded-lg flex items-center gap-2 disabled:opacity-50">
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+            {isLoading ? 'Analyzing...' : 'Generate'}
+          </button>
+        </div>
+        <div className="bg-white rounded-lg shadow p-3 mb-4 flex gap-4 text-sm">
+          <span>HbA1c: <strong className={parseFloat(patientData.labs.hba1c) > 7 ? 'text-red-500' : 'text-green-600'}>{patientData.labs.hba1c || '--'}%</strong></span>
+          <span>eGFR: <strong className={parseFloat(patientData.labs.egfr) < 60 ? 'text-amber-500' : 'text-green-600'}>{patientData.labs.egfr || '--'}</strong></span>
+        </div>
+        {recommendations.length > 0 ? (
+          <div className="space-y-3">
+            {recommendations.map(rec => (
+              <div key={rec.id} className={`p-4 rounded-xl border-2 ${rec.status === 'approved' ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'} ${actionedRecs[rec.id] ? 'opacity-60' : ''}`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold">{rec.med}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${rec.status === 'approved' ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                        {rec.status === 'approved' ? 'Recommended' : 'Blocked'}
+                      </span>
+                      {actionedRecs[rec.id] && (
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${actionedRecs[rec.id] === 'accepted' ? 'bg-green-100 text-green-700' : actionedRecs[rec.id] === 'modified' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>
+                          {actionedRecs[rec.id] === 'accepted' ? '✓ Accepted' : actionedRecs[rec.id] === 'modified' ? '✎ Modified' : '✗ Rejected'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm text-slate-700">{rec.dose}</p>
+                    <div className="flex items-center gap-2 mt-2 text-xs">
+                      <span>Confidence:</span>
+                      <div className="w-20 h-2 bg-slate-200 rounded-full">
+                        <div className={`h-full rounded-full ${rec.confidence >= 80 ? 'bg-green-500' : 'bg-amber-500'}`} style={{ width: `${rec.confidence}%` }} />
+                      </div>
+                      <span>{rec.confidence}%</span>
+                    </div>
+                  </div>
+                  {rec.status === 'approved' && !actionedRecs[rec.id] && (
+                    <div className="flex gap-2 ml-4">
+                      <button onClick={() => setActionedRecs({ ...actionedRecs, [rec.id]: 'accepted' })} className="px-3 py-2 bg-green-600 text-white rounded-lg flex items-center gap-1 text-sm font-medium hover:bg-green-700">
+                        <CheckCircle className="w-4 h-4" /> Accept
+                      </button>
+                      <button onClick={() => setActionedRecs({ ...actionedRecs, [rec.id]: 'modified' })} className="px-3 py-2 bg-blue-600 text-white rounded-lg flex items-center gap-1 text-sm font-medium hover:bg-blue-700">
+                        <Scale className="w-4 h-4" /> Modify
+                      </button>
+                      <button onClick={() => setActionedRecs({ ...actionedRecs, [rec.id]: 'rejected' })} className="px-3 py-2 border-2 border-red-400 text-red-600 rounded-lg flex items-center gap-1 text-sm font-medium hover:bg-red-50">
+                        <XCircle className="w-4 h-4" /> Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow p-10 text-center">
+            <Brain className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-500">Click Generate to get recommendations</p>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const Audit = () => (
+    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow overflow-hidden">
+      <h2 className="text-xl font-bold text-slate-800 p-4 border-b">Audit Trail</h2>
+      <table className="w-full text-sm">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className="px-4 py-2 text-left">ID</th>
+            <th className="px-4 py-2 text-left">Date</th>
+            <th className="px-4 py-2 text-left">Status</th>
+            <th className="px-4 py-2 text-left">Meds</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr className="border-b">
+            <td className="px-4 py-3">REQ-001</td>
+            <td className="px-4 py-3">2024-12-19</td>
+            <td className="px-4 py-3"><span className="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">Approved</span></td>
+            <td className="px-4 py-3">Metformin, Semaglutide</td>
+          </tr>
+          <tr className="border-b">
+            <td className="px-4 py-3">REQ-002</td>
+            <td className="px-4 py-3">2024-12-18</td>
+            <td className="px-4 py-3"><span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs">Modified</span></td>
+            <td className="px-4 py-3">Glargine 15→10u</td>
+          </tr>
+          <tr>
+            <td className="px-4 py-3">REQ-003</td>
+            <td className="px-4 py-3">2024-12-17</td>
+            <td className="px-4 py-3"><span className="px-2 py-0.5 bg-red-100 text-red-700 rounded-full text-xs">Rejected</span></td>
+            <td className="px-4 py-3">Glimepiride 4mg</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const screens = {
+    dashboard: Dashboard,
+    demographics: Demographics,
+    conditions: Conditions,
+    labs: Labs,
+    glucose: Glucose,
+    medications: Medications,
+    recommendations: Recommendations,
+    audit: Audit
+  };
+  
+  const Screen = screens[currentScreen] || Dashboard;
+
+  return (
+    <div className="min-h-screen bg-slate-100 flex flex-col">
+      <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+            <Brain className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="font-bold">GLYERAL</h1>
+            <p className="text-xs text-blue-200">Decision Support</p>
+          </div>
+        </div>
+        {selectedPatient && (
+          <div className="text-right">
+            <p className="text-sm font-medium">{selectedPatient.name}</p>
+            <p className="text-xs text-blue-200">{selectedPatient.mrNumber}</p>
+          </div>
+        )}
+      </header>
+      <div className="flex flex-1 overflow-hidden">
+        {selectedPatient && (
+          <aside className="w-44 bg-white shadow-lg p-3 flex-shrink-0">
+            <button onClick={() => { setSelectedPatient(null); setCurrentScreen('dashboard'); setRecommendations([]); }} className="flex items-center gap-2 text-slate-500 text-sm mb-3">
+              <ArrowLeft className="w-4 h-4" />Back
+            </button>
+            <nav className="space-y-1">
+              {navItems.map(({ id, icon: Icon, label }) => (
+                <button key={id} onClick={() => setCurrentScreen(id)} className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${currentScreen === id ? 'bg-blue-900 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <Icon className="w-4 h-4" />{label}
+                </button>
+              ))}
+            </nav>
+          </aside>
+        )}
+        <main className="flex-1 overflow-auto p-4">
+          <Screen />
+        </main>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="GlyeralApp_v3.jsx">
+import React, { useState } from 'react';
+import { Search, User, Activity, FlaskConical, Droplets, Pill, Brain, FileText, ChevronRight, AlertTriangle, CheckCircle, XCircle, Scale, Plus, ArrowLeft, Loader2, Menu, X, Save, Edit3 } from 'lucide-react';
+
+export default function GlyeralApp() {
+  const [currentScreen, setCurrentScreen] = useState('dashboard');
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [patientData, setPatientData] = useState({
+    demographics: { mrNumber: '', firstName: '', lastName: '', dob: '', gender: '', age: 0, weight: '', height: '', bmi: 0 },
+    healthIssues: { dm: true, ckd: false, cad: false, hypertension: false, pregnancy: false, neuropathy: false, retinopathy: false, obesity: false },
+    labs: { hba1c: '', egfr: '', creatinine: '', cPeptide: '', lipidPanel: '', urineAlbumin: '', insulinLevel: '' },
+    bloodSugar: { beforeBreakfast: '', beforeLunch: '', beforeDinner: '', beforeBed: '', average: 0 },
+    medications: { metformin: 0, glimepiride: 0, tradjenta: false, farxiga: 0, semaglutide: 0, glargine: 0, lispro_breakfast: 0, lispro_lunch: 0, lispro_dinner: 0, repaglinide_breakfast: 0, repaglinide_lunch: 0, repaglinide_dinner: 0 }
+  });
+  const [recommendations, setRecommendations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const navItems = [
+    { id: 'demographics', icon: User, label: 'Demographics' },
+    { id: 'conditions', icon: Activity, label: 'Health Issues' },
+    { id: 'labs', icon: FlaskConical, label: 'Lab Values' },
+    { id: 'glucose', icon: Droplets, label: 'Blood Sugar' },
+    { id: 'medications', icon: Pill, label: 'Medications' },
+    { id: 'recommendations', icon: Brain, label: 'AI Recommendations' },
+    { id: 'audit', icon: FileText, label: 'Audit Trail' }
+  ];
+
+  const selectPatient = (patient) => {
+    setSelectedPatient(patient);
+    setCurrentScreen('demographics');
+  };
+
+  const renderScreen = () => {
+    switch(currentScreen) {
+      case 'dashboard': return <Dashboard selectPatient={selectPatient} />;
+      case 'demographics': return <Demographics data={patientData} setData={setPatientData} next={() => setCurrentScreen('conditions')} />;
+      case 'conditions': return <Conditions data={patientData} setData={setPatientData} next={() => setCurrentScreen('labs')} />;
+      case 'labs': return <Labs data={patientData} setData={setPatientData} next={() => setCurrentScreen('glucose')} />;
+      case 'glucose': return <Glucose data={patientData} setData={setPatientData} next={() => setCurrentScreen('medications')} />;
+      case 'medications': return <Medications data={patientData} setData={setPatientData} next={() => setCurrentScreen('recommendations')} />;
+      case 'recommendations': return <Recommendations data={patientData} recommendations={recommendations} setRecommendations={setRecommendations} isLoading={isLoading} setIsLoading={setIsLoading} />;
+      case 'audit': return <Audit />;
+      default: return <Dashboard selectPatient={selectPatient} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <header className="bg-gradient-to-r from-blue-900 to-blue-800 text-white px-4 py-3 shadow-lg z-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {selectedPatient && (
+              <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-white/10 rounded-lg lg:hidden">
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            )}
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+                <Brain className="w-5 h-5" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold tracking-tight">GLYERAL</h1>
+                <p className="text-[10px] text-blue-200 -mt-1">Physician Decision Support</p>
+              </div>
+            </div>
+          </div>
+          {selectedPatient && (
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium">{selectedPatient.name}</p>
+                <p className="text-xs text-blue-200">MR# {selectedPatient.mrNumber}</p>
+              </div>
+              <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4" />
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        {selectedPatient && (
+          <aside className={`${sidebarOpen ? 'w-56' : 'w-0'} bg-white shadow-lg transition-all duration-300 overflow-hidden flex-shrink-0`}>
+            <div className="p-3 w-56">
+              <button 
+                onClick={() => { setSelectedPatient(null); setCurrentScreen('dashboard'); }}
+                className="flex items-center gap-2 text-slate-500 hover:text-blue-900 text-sm mb-4 w-full"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Search
+              </button>
+              
+              <nav className="space-y-1">
+                {navItems.map(({ id, icon: Icon, label }) => (
+                  <button
+                    key={id}
+                    onClick={() => setCurrentScreen(id)}
+                    className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      currentScreen === id 
+                        ? 'bg-blue-900 text-white shadow-md' 
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </button>
+                ))}
+              </nav>
+
+              <div className="mt-6 p-3 bg-slate-50 rounded-lg">
+                <h4 className="text-[10px] font-semibold text-slate-400 uppercase mb-2">Key Metrics</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">HbA1c</span>
+                    <span className={`font-bold ${parseFloat(patientData.labs.hba1c) > 7 ? 'text-red-500' : 'text-green-600'}`}>
+                      {patientData.labs.hba1c || '--'}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">eGFR</span>
+                    <span className={`font-bold ${parseFloat(patientData.labs.egfr) < 60 ? 'text-amber-500' : 'text-green-600'}`}>
+                      {patientData.labs.egfr || '--'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">BMI</span>
+                    <span className={`font-bold ${patientData.demographics.bmi > 30 ? 'text-red-500' : patientData.demographics.bmi > 25 ? 'text-amber-500' : 'text-green-600'}`}>
+                      {patientData.demographics.bmi || '--'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        )}
+
+        <main className="flex-1 overflow-auto p-4 md:p-6">
+          {renderScreen()}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+// Dashboard Component
+function Dashboard({ selectPatient }) {
+  const [search, setSearch] = useState('');
+  
+  const patients = [
+    { id: 1, mrNumber: 'MR-2024-001', name: 'John Smith', age: 58, gender: 'Male', lastVisit: '2024-12-15', hba1c: '8.2%' },
+    { id: 2, mrNumber: 'MR-2024-002', name: 'Maria Garcia', age: 62, gender: 'Female', lastVisit: '2024-12-18', hba1c: '7.5%' },
+    { id: 3, mrNumber: 'MR-2024-003', name: 'Robert Johnson', age: 45, gender: 'Male', lastVisit: '2024-12-19', hba1c: '9.1%' },
+  ];
+
+  const filtered = patients.filter(p => 
+    p.name.toLowerCase().includes(search.toLowerCase()) || 
+    p.mrNumber.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-800">Patient Search</h2>
+        <p className="text-slate-500 text-sm">Search for a patient or create a new record</p>
+      </div>
+
+      <div className="relative mb-6">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+        <input
+          type="text"
+          placeholder="Search by name or MR number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:outline-none text-lg"
+        />
+      </div>
+
+      <button 
+        onClick={() => selectPatient({ id: 0, mrNumber: 'NEW', name: 'New Patient' })}
+        className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition mb-6 text-sm font-medium"
+      >
+        <Plus className="w-4 h-4" />
+        New Patient
+      </button>
+
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        {[
+          { value: '12', label: 'Patients Today', color: 'text-blue-900' },
+          { value: '3', label: 'Pending Reviews', color: 'text-amber-500' },
+          { value: '89%', label: 'Acceptance Rate', color: 'text-green-600' }
+        ].map((stat, i) => (
+          <div key={i} className="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+            <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+            <div className="text-xs text-slate-500">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <h3 className="font-semibold text-slate-700 text-sm">Recent Patients</h3>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {filtered.map(patient => (
+            <div 
+              key={patient.id}
+              onClick={() => selectPatient(patient)}
+              className="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition"
+            >
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <User className="w-5 h-5 text-blue-900" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-slate-800 truncate">{patient.name}</p>
+                <p className="text-xs text-slate-500">{patient.mrNumber} • {patient.age}y • {patient.gender}</p>
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="text-xs text-slate-400">HbA1c</p>
+                <p className={`text-sm font-bold ${parseFloat(patient.hba1c) > 7 ? 'text-red-500' : 'text-green-600'}`}>{patient.hba1c}</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-300" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Demographics Component
+function Demographics({ data, setData, next }) {
+  const update = (field, value) => {
+    const newDemo = { ...data.demographics, [field]: value };
+    
+    if (field === 'dob' && value) {
+      const birth = new Date(value);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) age--;
+      newDemo.age = age;
+    }
+    
+    if ((field === 'weight' || field === 'height') && newDemo.weight && newDemo.height) {
+      const h = parseFloat(newDemo.height) / 100;
+      if (h > 0) newDemo.bmi = Math.round((parseFloat(newDemo.weight) / (h * h)) * 10) / 10;
+    }
+    
+    setData({ ...data, demographics: newDemo });
+  };
+
+  const getBmiStyle = (bmi) => {
+    if (!bmi) return 'bg-slate-100 text-slate-500';
+    if (bmi < 18.5) return 'bg-amber-100 text-amber-700';
+    if (bmi < 25) return 'bg-green-100 text-green-700';
+    if (bmi < 30) return 'bg-amber-100 text-amber-700';
+    return 'bg-red-100 text-red-700';
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800">Patient Demographics</h2>
+        <p className="text-slate-500 text-sm">Basic information for ML model input</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="MR Number *" value={data.demographics.mrNumber} onChange={v => update('mrNumber', v)} placeholder="MR-2024-XXX" />
+          <Input label="First Name *" value={data.demographics.firstName} onChange={v => update('firstName', v)} />
+          <Input label="Last Name *" value={data.demographics.lastName} onChange={v => update('lastName', v)} />
+          <Input label="Date of Birth *" type="date" value={data.demographics.dob} onChange={v => update('dob', v)} />
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Gender *</label>
+            <div className="flex gap-4">
+              {['Male', 'Female'].map(g => (
+                <label key={g} className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" checked={data.demographics.gender === g} onChange={() => update('gender', g)} className="w-4 h-4 text-blue-900" />
+                  <span className="text-sm">{g}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Age</label>
+            <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 text-sm">
+              {data.demographics.age || '--'} years
+            </div>
+          </div>
+          
+          <Input label="Weight (kg) *" type="number" value={data.demographics.weight} onChange={v => update('weight', v)} placeholder="75" />
+          <Input label="Height (cm) *" type="number" value={data.demographics.height} onChange={v => update('height', v)} placeholder="175" />
+          
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">BMI (Calculated)</label>
+            <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${getBmiStyle(data.demographics.bmi)}`}>
+              <Scale className="w-4 h-4" />
+              {data.demographics.bmi || '--'} kg/m²
+              {data.demographics.bmi >= 30 && ' (Obese)'}
+              {data.demographics.bmi >= 25 && data.demographics.bmi < 30 && ' (Overweight)'}
+              {data.demographics.bmi >= 18.5 && data.demographics.bmi < 25 && ' (Normal)'}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={next} className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm font-medium">
+            Next: Health Issues <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Conditions Component
+function Conditions({ data, setData, next }) {
+  const conditions = [
+    { key: 'dm', label: 'Diabetes Mellitus', desc: 'Primary condition - always checked', required: true },
+    { key: 'ckd', label: 'Chronic Kidney Disease', desc: 'Affects Metformin dosing' },
+    { key: 'cad', label: 'Coronary Artery Disease', desc: 'Favors SGLT2i/GLP-1 RA' },
+    { key: 'hypertension', label: 'Hypertension', desc: 'CV risk factor' },
+    { key: 'pregnancy', label: 'Pregnancy', desc: 'BLOCKS oral medications', warning: true },
+    { key: 'neuropathy', label: 'Neuropathy', desc: 'DM complication' },
+    { key: 'retinopathy', label: 'Retinopathy', desc: 'DM complication' },
+  ];
+
+  const toggle = (key) => {
+    if (key === 'dm') return;
+    setData({ ...data, healthIssues: { ...data.healthIssues, [key]: !data.healthIssues[key] } });
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800">Health Issues & Conditions</h2>
+        <p className="text-slate-500 text-sm">Select all applicable conditions</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="space-y-2">
+          {conditions.map(({ key, label, desc, required, warning }) => (
+            <div
+              key={key}
+              onClick={() => toggle(key)}
+              className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                data.healthIssues[key] ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-slate-300'
+              } ${required ? 'cursor-not-allowed' : ''}`}
+            >
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                data.healthIssues[key] ? 'border-blue-500 bg-blue-500' : 'border-slate-300'
+              }`}>
+                {data.healthIssues[key] && <CheckCircle className="w-3 h-3 text-white" />}
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-slate-800 text-sm">{label}</p>
+                <p className="text-xs text-slate-500">{desc}</p>
+              </div>
+              {required && <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full">Required</span>}
+              {warning && data.healthIssues[key] && (
+                <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" /> Blocks Oral
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={next} className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm font-medium">
+            Next: Lab Values <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Labs Component
+function Labs({ data, setData, next }) {
+  const labs = [
+    { key: 'hba1c', label: 'HbA1c', unit: '%', normal: '< 5.7', critical: true },
+    { key: 'egfr', label: 'eGFR', unit: 'mL/min', normal: '> 90', critical: true },
+    { key: 'creatinine', label: 'Creatinine', unit: 'mg/dL', normal: '0.7-1.3' },
+    { key: 'lipidPanel', label: 'LDL', unit: 'mg/dL', normal: '< 100' },
+    { key: 'urineAlbumin', label: 'Urine Albumin', unit: 'mg/L', normal: '< 30' },
+  ];
+
+  const update = (key, value) => setData({ ...data, labs: { ...data.labs, [key]: value } });
+
+  const getStatus = (key, value) => {
+    if (!value) return '';
+    const v = parseFloat(value);
+    if (key === 'hba1c') return v < 5.7 ? 'border-green-500 bg-green-50' : v < 7 ? 'border-amber-500 bg-amber-50' : 'border-red-500 bg-red-50';
+    if (key === 'egfr') return v >= 90 ? 'border-green-500 bg-green-50' : v >= 60 ? 'border-amber-500 bg-amber-50' : 'border-red-500 bg-red-50';
+    return '';
+  };
+
+  const getCkdStage = (egfr) => {
+    if (!egfr) return null;
+    const v = parseFloat(egfr);
+    if (v >= 90) return { stage: '1', label: 'Normal', color: 'bg-green-100 text-green-700' };
+    if (v >= 60) return { stage: '2', label: 'Mild', color: 'bg-amber-100 text-amber-700' };
+    if (v >= 30) return { stage: '3', label: 'Moderate', color: 'bg-orange-100 text-orange-700' };
+    if (v >= 15) return { stage: '4', label: 'Severe', color: 'bg-red-100 text-red-700' };
+    return { stage: '5', label: 'Failure', color: 'bg-red-100 text-red-700' };
+  };
+
+  const ckd = getCkdStage(data.labs.egfr);
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800">Laboratory Values</h2>
+        <p className="text-slate-500 text-sm">HbA1c and eGFR are required for ML prediction</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="grid grid-cols-2 gap-4">
+          {labs.map(({ key, label, unit, normal, critical }) => (
+            <div key={key}>
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
+                {label}
+                {critical && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded">PRIMARY</span>}
+              </label>
+              <div className={`flex items-center border-2 rounded-lg transition ${getStatus(key, data.labs[key]) || 'border-slate-200'}`}>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={data.labs[key]}
+                  onChange={(e) => update(key, e.target.value)}
+                  className="flex-1 px-3 py-2 bg-transparent focus:outline-none text-sm"
+                  placeholder="--"
+                />
+                <span className="px-3 text-slate-400 text-xs">{unit}</span>
+              </div>
+              <p className="text-[10px] text-slate-400 mt-1">Normal: {normal}</p>
+            </div>
+          ))}
+        </div>
+
+        {ckd && (
+          <div className="mt-4 p-3 bg-slate-50 rounded-lg flex items-center gap-3">
+            <Activity className="w-5 h-5 text-slate-600" />
+            <div>
+              <p className="text-xs text-slate-500">CKD Stage</p>
+              <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${ckd.color}`}>
+                Stage {ckd.stage}: {ckd.label}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={next} className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm font-medium">
+            Next: Blood Sugar <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Glucose Component
+function Glucose({ data, setData, next }) {
+  const times = [
+    { key: 'beforeBreakfast', label: 'Before Breakfast', target: '80-130' },
+    { key: 'beforeLunch', label: 'Before Lunch', target: '80-130' },
+    { key: 'beforeDinner', label: 'Before Dinner', target: '80-130' },
+    { key: 'beforeBed', label: 'Before Bed', target: '100-140' },
+  ];
+
+  const update = (key, value) => {
+    const newBS = { ...data.bloodSugar, [key]: value };
+    const vals = [newBS.beforeBreakfast, newBS.beforeLunch, newBS.beforeDinner, newBS.beforeBed]
+      .filter(v => v && !isNaN(parseFloat(v))).map(v => parseFloat(v));
+    newBS.average = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+    setData({ ...data, bloodSugar: newBS });
+  };
+
+  const getColor = (value) => {
+    if (!value) return 'border-slate-200';
+    const v = parseFloat(value);
+    if (v < 70) return 'border-red-500 bg-red-50';
+    if (v <= 140) return 'border-green-500 bg-green-50';
+    if (v <= 180) return 'border-amber-500 bg-amber-50';
+    return 'border-red-500 bg-red-50';
+  };
+
+  const hasHypo = Object.values(data.bloodSugar).some(v => v && parseFloat(v) < 70);
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800">Daily Blood Sugar</h2>
+        <p className="text-slate-500 text-sm">Enter glucose readings in mg/dL</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="space-y-3">
+          {times.map(({ key, label, target }) => (
+            <div key={key} className="flex items-center gap-3">
+              <div className="w-32 text-sm text-slate-700">{label}</div>
+              <div className={`flex-1 flex items-center border-2 rounded-lg transition ${getColor(data.bloodSugar[key])}`}>
+                <input
+                  type="number"
+                  value={data.bloodSugar[key]}
+                  onChange={(e) => update(key, e.target.value)}
+                  className="flex-1 px-3 py-2 bg-transparent focus:outline-none text-center font-mono"
+                  placeholder="--"
+                />
+                <span className="px-3 text-slate-400 text-xs">mg/dL</span>
+              </div>
+              <div className="w-20 text-xs text-slate-400">{target}</div>
+            </div>
+          ))}
+
+          <div className="flex items-center gap-3 pt-3 border-t border-slate-200">
+            <div className="w-32 text-sm font-bold text-slate-700">Average</div>
+            <div className={`flex-1 flex items-center justify-center py-2 rounded-lg ${
+              !data.bloodSugar.average ? 'bg-slate-100' : data.bloodSugar.average <= 154 ? 'bg-green-100' : 'bg-amber-100'
+            }`}>
+              <span className="text-xl font-bold font-mono">{data.bloodSugar.average || '--'}</span>
+              <span className="ml-2 text-slate-500 text-sm">mg/dL</span>
+            </div>
+            <div className="w-20 text-xs text-slate-400">&lt;154</div>
+          </div>
+        </div>
+
+        {hasHypo && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" />
+            <div>
+              <p className="font-medium text-red-700 text-sm">Hypoglycemia Detected</p>
+              <p className="text-xs text-red-600">Reading below 70 mg/dL</p>
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={next} className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm font-medium">
+            Next: Medications <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Medications Component
+function Medications({ data, setData, next }) {
+  const meds = [
+    { key: 'metformin', label: 'Metformin', class: 'Biguanide', range: '500-2000mg', type: 'slider', min: 0, max: 2000, step: 250 },
+    { key: 'glimepiride', label: 'Glimepiride', class: 'Sulfonylurea', range: '1-4mg', type: 'select', options: [0, 1, 2, 3, 4] },
+    { key: 'tradjenta', label: 'Tradjenta', class: 'DPP-4i', range: '5mg', type: 'toggle' },
+    { key: 'farxiga', label: 'Farxiga', class: 'SGLT2i', range: '5-10mg', type: 'select', options: [0, 5, 10] },
+    { key: 'semaglutide', label: 'Semaglutide (Ozempic)', class: 'GLP-1 RA', range: '0.25-2mg', type: 'slider', min: 0, max: 2, step: 0.25 },
+    { key: 'glargine', label: 'Glargine (Before Dinner)', class: 'Basal Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+    { key: 'lispro_breakfast', label: 'Lispro (Before Breakfast)', class: 'Bolus Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+    { key: 'lispro_lunch', label: 'Lispro (Before Lunch)', class: 'Bolus Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+    { key: 'lispro_dinner', label: 'Lispro (Before Dinner)', class: 'Bolus Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+    { key: 'repaglinide_breakfast', label: 'Repaglinide (Before Breakfast)', class: 'Meglitinide', range: '0.5-2mg', type: 'select', options: [0, 0.5, 1, 1.5, 2] },
+    { key: 'repaglinide_lunch', label: 'Repaglinide (Before Lunch)', class: 'Meglitinide', range: '0.5-2mg', type: 'select', options: [0, 0.5, 1, 1.5, 2] },
+    { key: 'repaglinide_dinner', label: 'Repaglinide (Before Dinner)', class: 'Meglitinide', range: '0.5-2mg', type: 'select', options: [0, 0.5, 1, 1.5, 2] },
+  ];
+
+  const update = (key, value) => setData({ ...data, medications: { ...data.medications, [key]: value } });
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800">Current Medications</h2>
+        <p className="text-slate-500 text-sm">Enter current diabetes medications</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {meds.map(({ key, label, range, type, options, min, max, step, class: medClass }) => (
+            <div key={key} className="p-3 border border-slate-200 rounded-lg">
+              <div className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-medium text-slate-800 text-sm truncate">{label}</p>
+                  <p className="text-xs text-slate-500">{range}</p>
+                </div>
+                {type === 'toggle' ? (
+                  <button
+                    onClick={() => update(key, !data.medications[key])}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition flex-shrink-0 ${
+                      data.medications[key] ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {data.medications[key] ? 'ON' : 'OFF'}
+                  </button>
+                ) : type === 'select' ? (
+                  <select
+                    value={data.medications[key]}
+                    onChange={(e) => update(key, parseFloat(e.target.value))}
+                    className="px-2 py-1 border border-slate-200 rounded text-sm flex-shrink-0"
+                  >
+                    {options.map(opt => <option key={opt} value={opt}>{opt === 0 ? 'None' : `${opt}${key.includes('repaglinide') ? 'mg' : 'mg'}`}</option>)}
+                  </select>
+                ) : type === 'slider' ? (
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <input type="range" min={min} max={max} step={step} value={data.medications[key]} onChange={(e) => update(key, parseFloat(e.target.value))} className="w-20" />
+                    <span className="w-14 text-right text-xs font-mono">{data.medications[key]}mg</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <input type="number" min={min} max={max} value={data.medications[key]} onChange={(e) => update(key, parseFloat(e.target.value) || 0)} className="w-16 px-2 py-1 border border-slate-200 rounded text-sm text-right" placeholder="0" />
+                    <span className="text-xs text-slate-500">u</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button onClick={next} className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+            <Brain className="w-4 h-4" />
+            Get AI Recommendations
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Medication Configuration for Recommendations
+const MEDICATION_CONFIG = {
+  'Metformin': {
+    class: 'Biguanide',
+    dosageRange: '500-2000mg',
+    dosageOptions: ['500mg', '750mg', '1000mg', '1500mg', '2000mg'],
+    frequencyOptions: ['Once daily', 'Twice daily'],
+    timingOptions: ['With breakfast', 'With dinner', 'With meals'],
+    unit: 'mg'
+  },
+  'Glimepiride': {
+    class: 'Sulfonylurea',
+    dosageRange: '1-4mg',
+    dosageOptions: ['1mg', '2mg', '3mg', '4mg'],
+    frequencyOptions: ['Once daily'],
+    timingOptions: ['Before breakfast', 'With breakfast'],
+    unit: 'mg'
+  },
+  'Tradjenta': {
+    class: 'DPP-4 Inhibitor',
+    dosageRange: '5mg',
+    dosageOptions: ['5mg'],
+    frequencyOptions: ['Once daily'],
+    timingOptions: ['Morning', 'Any time'],
+    unit: 'mg'
+  },
+  'Glargine_Before_Dinner': {
+    class: 'Basal Insulin',
+    dosageRange: '4-100 units',
+    dosageOptions: ['4 units', '6 units', '8 units', '10 units', '12 units', '15 units', '20 units', '25 units', '30 units', '40 units', '50 units', '60 units', '80 units', '100 units'],
+    frequencyOptions: ['Once daily'],
+    timingOptions: ['Before dinner', 'At bedtime'],
+    unit: 'units'
+  },
+  'Lispro_Before_Breakfast': {
+    class: 'Rapid-Acting Insulin',
+    dosageRange: '4-100 units',
+    dosageOptions: ['4 units', '6 units', '8 units', '10 units', '12 units', '15 units', '20 units', '25 units', '30 units', '40 units', '50 units'],
+    frequencyOptions: ['Before meals'],
+    timingOptions: ['Before breakfast'],
+    unit: 'units'
+  },
+  'Lispro_Before_Lunch': {
+    class: 'Rapid-Acting Insulin',
+    dosageRange: '4-100 units',
+    dosageOptions: ['4 units', '6 units', '8 units', '10 units', '12 units', '15 units', '20 units', '25 units', '30 units', '40 units', '50 units'],
+    frequencyOptions: ['Before meals'],
+    timingOptions: ['Before lunch'],
+    unit: 'units'
+  },
+  'Lispro_Before_Dinner': {
+    class: 'Rapid-Acting Insulin',
+    dosageRange: '4-100 units',
+    dosageOptions: ['4 units', '6 units', '8 units', '10 units', '12 units', '15 units', '20 units', '25 units', '30 units', '40 units', '50 units'],
+    frequencyOptions: ['Before meals'],
+    timingOptions: ['Before dinner'],
+    unit: 'units'
+  },
+  'Repaglinide_Before_Breakfast': {
+    class: 'Meglitinide',
+    dosageRange: '0.5-2mg',
+    dosageOptions: ['0.5mg', '1mg', '1.5mg', '2mg'],
+    frequencyOptions: ['Before meals'],
+    timingOptions: ['Before breakfast'],
+    unit: 'mg'
+  },
+  'Repaglinide_Before_Lunch': {
+    class: 'Meglitinide',
+    dosageRange: '0.5-2mg',
+    dosageOptions: ['0.5mg', '1mg', '1.5mg', '2mg'],
+    frequencyOptions: ['Before meals'],
+    timingOptions: ['Before lunch'],
+    unit: 'mg'
+  },
+  'Repaglinide_Before_Dinner': {
+    class: 'Meglitinide',
+    dosageRange: '0.5-2mg',
+    dosageOptions: ['0.5mg', '1mg', '1.5mg', '2mg'],
+    frequencyOptions: ['Before meals'],
+    timingOptions: ['Before dinner'],
+    unit: 'mg'
+  },
+  'Farxiga': {
+    class: 'SGLT2 Inhibitor',
+    dosageRange: '5-10mg',
+    dosageOptions: ['5mg', '10mg'],
+    frequencyOptions: ['Once daily'],
+    timingOptions: ['Morning', 'Any time'],
+    unit: 'mg'
+  },
+  'Semaglutide': {
+    class: 'GLP-1 RA',
+    dosageRange: '0.25-2mg',
+    dosageOptions: ['0.25mg', '0.5mg', '1mg', '1.5mg', '2mg'],
+    frequencyOptions: ['Once weekly'],
+    timingOptions: ['Same day each week', 'Any time of day'],
+    unit: 'mg'
+  }
+};
+
+// Modify Medication Modal Component
+function ModifyModal({ recommendation, onSave, onClose }) {
+  const config = MEDICATION_CONFIG[recommendation.med] || {};
+  
+  const [modifiedData, setModifiedData] = useState({
+    dosage: recommendation.originalDosage || '',
+    frequency: config.frequencyOptions?.[0] || 'Once daily',
+    timing: config.timingOptions?.[0] || 'Morning',
+    notes: ''
+  });
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white px-6 py-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+              <Edit3 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold">Modify Medication</h3>
+              <p className="text-blue-200 text-sm">{recommendation.med}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-600 font-medium mb-1">AI Recommended</p>
+            <p className="text-blue-900 font-semibold">{recommendation.dose}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg">
+            <div>
+              <p className="text-xs text-slate-500">Drug Class</p>
+              <p className="text-sm font-medium text-slate-700">{config.class || 'N/A'}</p>
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Dosage Range</p>
+              <p className="text-sm font-medium text-slate-700">{config.dosageRange || 'N/A'}</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Modified Dosage *</label>
+            <select
+              value={modifiedData.dosage}
+              onChange={(e) => setModifiedData({ ...modifiedData, dosage: e.target.value })}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none text-sm"
+            >
+              <option value="">Select dosage...</option>
+              {(config.dosageOptions || ['Custom']).map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Frequency</label>
+            <select
+              value={modifiedData.frequency}
+              onChange={(e) => setModifiedData({ ...modifiedData, frequency: e.target.value })}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none text-sm"
+            >
+              {(config.frequencyOptions || ['Once daily']).map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Timing</label>
+            <select
+              value={modifiedData.timing}
+              onChange={(e) => setModifiedData({ ...modifiedData, timing: e.target.value })}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none text-sm"
+            >
+              {(config.timingOptions || ['Morning']).map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Modification Reason *</label>
+            <textarea
+              value={modifiedData.notes}
+              onChange={(e) => setModifiedData({ ...modifiedData, notes: e.target.value })}
+              placeholder="Enter reason for modification (required for audit trail)..."
+              rows={3}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none text-sm resize-none"
+            />
+          </div>
+
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-amber-700">
+              All modifications are logged for FDA 21 CFR Part 11 compliance.
+            </p>
+          </div>
+        </div>
+
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3 flex-shrink-0">
+          <button onClick={onClose} className="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 text-sm font-medium">
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (modifiedData.dosage && modifiedData.notes) {
+                onSave({
+                  ...recommendation,
+                  dose: `${modifiedData.dosage} ${modifiedData.frequency.toLowerCase()}`,
+                  modifiedDosage: modifiedData.dosage,
+                  frequency: modifiedData.frequency,
+                  timing: modifiedData.timing,
+                  notes: modifiedData.notes,
+                  status: 'modified',
+                  modifiedAt: new Date().toISOString()
+                });
+              }
+            }}
+            disabled={!modifiedData.dosage || !modifiedData.notes}
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Save className="w-4 h-4" />
+            Save Modification
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Recommendations Component
+function Recommendations({ data, recommendations, setRecommendations, isLoading, setIsLoading }) {
+  const [modifyingRec, setModifyingRec] = useState(null);
+  const [actionedRecs, setActionedRecs] = useState({});
+
+  const generate = () => {
+    setIsLoading(true);
+    setActionedRecs({});
+    
+    setTimeout(() => {
+      const egfr = parseFloat(data.labs.egfr) || 100;
+      const hba1c = parseFloat(data.labs.hba1c) || 7;
+      const isPregnant = data.healthIssues.pregnancy;
+      const hasCKD = data.healthIssues.ckd || egfr < 60;
+      const hasCAD = data.healthIssues.cad;
+
+      const recs = [
+        // Oral Medications
+        { 
+          id: 1, 
+          med: 'Metformin', 
+          dose: egfr >= 45 ? '1000mg twice daily' : egfr >= 30 ? '500mg twice daily' : 'Not recommended',
+          originalDosage: egfr >= 45 ? '1000mg' : '500mg',
+          confidence: egfr >= 45 ? 95 : egfr >= 30 ? 70 : 0,
+          status: egfr < 30 || isPregnant ? 'blocked' : 'approved',
+          guidelines: ['ADA 2025 First-line therapy'],
+          warnings: egfr < 30 ? ['BLOCKED: eGFR < 30 - Contraindicated'] : isPregnant ? ['BLOCKED: Pregnancy'] : egfr < 45 ? ['Reduce dose for eGFR 30-45'] : [],
+          category: 'Oral'
+        },
+        { 
+          id: 2, 
+          med: 'Glimepiride', 
+          dose: '2mg once daily before breakfast',
+          originalDosage: '2mg',
+          confidence: 55,
+          status: isPregnant ? 'blocked' : 'warning',
+          guidelines: ['Second-line if Metformin intolerant'],
+          warnings: isPregnant ? ['BLOCKED: Pregnancy'] : ['Hypoglycemia risk', 'Weight gain potential'],
+          category: 'Oral'
+        },
+        { 
+          id: 3, 
+          med: 'Tradjenta', 
+          dose: '5mg once daily',
+          originalDosage: '5mg',
+          confidence: 75,
+          status: isPregnant ? 'blocked' : 'approved',
+          guidelines: ['No renal dose adjustment needed', 'ADA: DPP-4i option'],
+          warnings: isPregnant ? ['BLOCKED: Pregnancy'] : [],
+          category: 'Oral'
+        },
+        { 
+          id: 4, 
+          med: 'Farxiga', 
+          dose: egfr >= 45 ? '10mg once daily' : '5mg once daily',
+          originalDosage: egfr >= 45 ? '10mg' : '5mg',
+          confidence: hasCAD || hasCKD ? 90 : 82,
+          status: egfr < 25 || isPregnant ? 'blocked' : 'approved',
+          guidelines: ['KDIGO 2024: CKD benefit', 'AHA: Heart failure protection'],
+          warnings: egfr < 25 ? ['BLOCKED: eGFR < 25'] : isPregnant ? ['BLOCKED: Pregnancy'] : egfr < 45 ? ['Reduced glucose efficacy at lower eGFR'] : [],
+          category: 'Oral'
+        },
+        { 
+          id: 5, 
+          med: 'Semaglutide', 
+          dose: hba1c > 8 ? '0.5mg weekly → titrate to 1mg' : '0.25mg weekly → titrate to 0.5mg',
+          originalDosage: hba1c > 8 ? '0.5mg' : '0.25mg',
+          confidence: 88,
+          status: isPregnant ? 'blocked' : 'approved',
+          guidelines: ['ADA: Weight loss benefit', 'AHA: CV risk reduction'],
+          warnings: isPregnant ? ['BLOCKED: Pregnancy'] : ['Start low, titrate slowly for GI tolerance'],
+          category: 'Injectable'
+        },
+        { 
+          id: 6, 
+          med: 'Repaglinide_Before_Breakfast', 
+          dose: '1mg before breakfast',
+          originalDosage: '1mg',
+          confidence: 50,
+          status: isPregnant ? 'blocked' : 'warning',
+          guidelines: ['Alternative to sulfonylureas', 'Flexible meal-time dosing'],
+          warnings: isPregnant ? ['BLOCKED: Pregnancy'] : ['Hypoglycemia risk', 'Requires meal-time dosing'],
+          category: 'Oral'
+        },
+        { 
+          id: 7, 
+          med: 'Repaglinide_Before_Lunch', 
+          dose: '1mg before lunch',
+          originalDosage: '1mg',
+          confidence: 50,
+          status: isPregnant ? 'blocked' : 'warning',
+          guidelines: ['Alternative to sulfonylureas'],
+          warnings: isPregnant ? ['BLOCKED: Pregnancy'] : ['Hypoglycemia risk'],
+          category: 'Oral'
+        },
+        { 
+          id: 8, 
+          med: 'Repaglinide_Before_Dinner', 
+          dose: '1mg before dinner',
+          originalDosage: '1mg',
+          confidence: 50,
+          status: isPregnant ? 'blocked' : 'warning',
+          guidelines: ['Alternative to sulfonylureas'],
+          warnings: isPregnant ? ['BLOCKED: Pregnancy'] : ['Hypoglycemia risk'],
+          category: 'Oral'
+        },
+        // Insulin
+        { 
+          id: 9, 
+          med: 'Glargine_Before_Dinner', 
+          dose: hba1c > 9 ? '20 units before dinner' : '10 units before dinner',
+          originalDosage: hba1c > 9 ? '20 units' : '10 units',
+          confidence: hba1c > 9 ? 92 : 78,
+          status: 'approved',
+          guidelines: ['ADA: Basal insulin when HbA1c > 9%', 'Safe in pregnancy'],
+          warnings: hba1c <= 7.5 ? ['May not be needed if HbA1c at goal'] : [],
+          category: 'Insulin'
+        },
+        { 
+          id: 10, 
+          med: 'Lispro_Before_Breakfast', 
+          dose: '6 units before breakfast',
+          originalDosage: '6 units',
+          confidence: hba1c > 8.5 ? 80 : 60,
+          status: 'approved',
+          guidelines: ['ADA: Bolus insulin for post-meal control', 'Safe in pregnancy'],
+          warnings: ['Monitor for hypoglycemia', 'Adjust based on carb intake'],
+          category: 'Insulin'
+        },
+        { 
+          id: 11, 
+          med: 'Lispro_Before_Lunch', 
+          dose: '6 units before lunch',
+          originalDosage: '6 units',
+          confidence: hba1c > 8.5 ? 80 : 60,
+          status: 'approved',
+          guidelines: ['ADA: Bolus insulin for post-meal control'],
+          warnings: ['Monitor for hypoglycemia'],
+          category: 'Insulin'
+        },
+        { 
+          id: 12, 
+          med: 'Lispro_Before_Dinner', 
+          dose: '8 units before dinner',
+          originalDosage: '8 units',
+          confidence: hba1c > 8.5 ? 82 : 62,
+          status: 'approved',
+          guidelines: ['ADA: Bolus insulin for post-meal control'],
+          warnings: ['Monitor for hypoglycemia'],
+          category: 'Insulin'
+        },
+      ];
+
+      setRecommendations(recs);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleAccept = (rec) => {
+    setActionedRecs({ ...actionedRecs, [rec.id]: { action: 'accepted', timestamp: new Date().toISOString() } });
+  };
+
+  const handleReject = (rec) => {
+    setActionedRecs({ ...actionedRecs, [rec.id]: { action: 'rejected', timestamp: new Date().toISOString() } });
+  };
+
+  const handleModifySave = (modifiedRec) => {
+    setRecommendations(recommendations.map(r => r.id === modifiedRec.id ? modifiedRec : r));
+    setActionedRecs({ ...actionedRecs, [modifiedRec.id]: { action: 'modified', timestamp: new Date().toISOString(), notes: modifiedRec.notes } });
+    setModifyingRec(null);
+  };
+
+  const getStatusStyle = (status) => {
+    if (status === 'approved') return 'border-green-500 bg-green-50';
+    if (status === 'warning') return 'border-amber-500 bg-amber-50';
+    if (status === 'modified') return 'border-blue-500 bg-blue-50';
+    return 'border-red-500 bg-red-50';
+  };
+
+  const getActionBadge = (recId) => {
+    const action = actionedRecs[recId];
+    if (!action) return null;
+    
+    const styles = {
+      accepted: 'bg-green-100 text-green-700 border-green-200',
+      rejected: 'bg-red-100 text-red-700 border-red-200',
+      modified: 'bg-blue-100 text-blue-700 border-blue-200'
+    };
+    
+    const icons = {
+      accepted: <CheckCircle className="w-3 h-3" />,
+      rejected: <XCircle className="w-3 h-3" />,
+      modified: <Edit3 className="w-3 h-3" />
+    };
+    
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${styles[action.action]}`}>
+        {icons[action.action]}
+        {action.action.charAt(0).toUpperCase() + action.action.slice(1)}
+      </span>
+    );
+  };
+
+  // Group recommendations by category
+  const groupedRecs = recommendations.reduce((acc, rec) => {
+    const cat = rec.category || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(rec);
+    return acc;
+  }, {});
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {modifyingRec && (
+        <ModifyModal
+          recommendation={modifyingRec}
+          onSave={handleModifySave}
+          onClose={() => setModifyingRec(null)}
+        />
+      )}
+
+      <div className="mb-5 flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800">AI Medication Recommendations</h2>
+          <p className="text-slate-500 text-sm">12 medications analyzed based on patient profile</p>
+        </div>
+        <button onClick={generate} disabled={isLoading} className="flex items-center gap-2 px-5 py-2.5 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm font-medium disabled:opacity-50">
+          {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+          {isLoading ? 'Analyzing...' : 'Generate Recommendations'}
+        </button>
+      </div>
+
+      {/* Patient Summary */}
+      <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-3 mb-4 flex items-center gap-4 flex-wrap text-sm">
+        <span className="text-slate-500">HbA1c: <strong className={parseFloat(data.labs.hba1c) > 7 ? 'text-red-500' : 'text-green-600'}>{data.labs.hba1c || '--'}%</strong></span>
+        <span className="text-slate-500">eGFR: <strong className={parseFloat(data.labs.egfr) < 60 ? 'text-amber-500' : 'text-green-600'}>{data.labs.egfr || '--'}</strong></span>
+        <span className="text-slate-500">BMI: <strong>{data.demographics.bmi || '--'}</strong></span>
+        {data.healthIssues.cad && <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">CAD</span>}
+        {data.healthIssues.ckd && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full">CKD</span>}
+        {data.healthIssues.pregnancy && <span className="px-2 py-0.5 bg-pink-100 text-pink-700 text-xs rounded-full">Pregnancy</span>}
+      </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 animate-pulse">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-200 rounded-lg" />
+                <div className="flex-1"><div className="h-4 bg-slate-200 rounded w-40 mb-2" /><div className="h-3 bg-slate-200 rounded w-24" /></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Recommendations by Category */}
+      {!isLoading && recommendations.length > 0 && (
+        <div className="space-y-6">
+          {Object.entries(groupedRecs).map(([category, recs]) => (
+            <div key={category}>
+              <h3 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-2">
+                <Pill className="w-4 h-4" />
+                {category} Medications ({recs.length})
+              </h3>
+              <div className="space-y-2">
+                {recs.map(rec => {
+                  const isActioned = !!actionedRecs[rec.id];
+                  
+                  return (
+                    <div key={rec.id} className={`bg-white rounded-lg shadow-sm border-2 p-3 transition-all ${isActioned ? 'opacity-60' : ''} ${getStatusStyle(rec.status)}`}>
+                      <div className="flex items-start gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                          rec.status === 'approved' ? 'bg-green-100' : 
+                          rec.status === 'warning' ? 'bg-amber-100' : 
+                          rec.status === 'modified' ? 'bg-blue-100' : 'bg-red-100'
+                        }`}>
+                          {rec.status === 'approved' && <CheckCircle className="w-4 h-4 text-green-600" />}
+                          {rec.status === 'warning' && <AlertTriangle className="w-4 h-4 text-amber-600" />}
+                          {rec.status === 'modified' && <Edit3 className="w-4 h-4 text-blue-600" />}
+                          {rec.status === 'blocked' && <XCircle className="w-4 h-4 text-red-600" />}
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <h4 className={`font-bold text-sm ${rec.status === 'blocked' ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                              {rec.med.replace(/_/g, ' ')}
+                            </h4>
+                            {rec.status === 'blocked' && <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[10px] font-medium rounded">BLOCKED</span>}
+                            {rec.status === 'modified' && <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded">MODIFIED</span>}
+                            {getActionBadge(rec.id)}
+                          </div>
+                          <p className="text-slate-600 text-xs mb-2">{rec.dose}</p>
+
+                          {rec.status === 'modified' && rec.notes && (
+                            <p className="text-xs text-blue-600 mb-2 italic">Note: {rec.notes}</p>
+                          )}
+
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden max-w-[100px]">
+                              <div className={`h-full rounded-full ${rec.confidence >= 80 ? 'bg-green-500' : rec.confidence >= 60 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${rec.confidence}%` }} />
+                            </div>
+                            <span className="text-[10px] text-slate-500">{rec.confidence}%</span>
+                            {rec.guidelines.slice(0, 1).map((g, i) => (
+                              <span key={i} className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded hidden sm:inline">{g}</span>
+                            ))}
+                          </div>
+
+                          {rec.warnings.length > 0 && (
+                            <p className="flex items-center gap-1 text-[10px] text-amber-600">
+                              <AlertTriangle className="w-3 h-3" />{rec.warnings[0]}
+                            </p>
+                          )}
+                        </div>
+
+                        {rec.status !== 'blocked' && !isActioned && (
+                          <div className="flex gap-1 flex-shrink-0">
+                            <button onClick={() => handleAccept(rec)} className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700" title="Accept">
+                              <CheckCircle className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => setModifyingRec(rec)} className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200" title="Modify">
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button onClick={() => handleReject(rec)} className="p-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50" title="Reject">
+                              <XCircle className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+
+                        {isActioned && (
+                          <span className="text-[10px] text-slate-400 flex-shrink-0">✓ Saved</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && recommendations.length === 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-10 text-center">
+          <Brain className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="font-medium text-slate-600 mb-1">No Recommendations Yet</h3>
+          <p className="text-slate-400 text-sm mb-4">Click Generate to analyze all 12 medications</p>
+          <button onClick={generate} className="px-5 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 text-sm">Generate Recommendations</button>
+        </div>
+      )}
+
+      {/* Summary */}
+      {Object.keys(actionedRecs).length > 0 && (
+        <div className="mt-6 p-4 bg-slate-100 rounded-xl">
+          <h4 className="font-semibold text-slate-700 mb-3 text-sm">Decision Summary</h4>
+          <div className="flex gap-4 text-sm mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>Accepted: {Object.values(actionedRecs).filter(a => a.action === 'accepted').length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span>Modified: {Object.values(actionedRecs).filter(a => a.action === 'modified').length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span>Rejected: {Object.values(actionedRecs).filter(a => a.action === 'rejected').length}</span>
+            </div>
+          </div>
+          <button className="w-full py-2.5 bg-blue-900 text-white rounded-lg text-sm font-medium hover:bg-blue-800">
+            Submit All Decisions
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Audit Component
+function Audit() {
+  const logs = [
+    { id: 'REQ-001', time: '2024-12-19 14:32', status: 'Approved', meds: 'Metformin 1000mg, Semaglutide 0.5mg', confidence: 91, action: 'Accepted - Dr. Smith' },
+    { id: 'REQ-002', time: '2024-12-18 09:15', status: 'Modified', meds: 'Glargine 15u → 10u', confidence: 85, action: 'Reduced - patient preference' },
+    { id: 'REQ-003', time: '2024-12-17 16:45', status: 'Rejected', meds: 'Glimepiride 4mg', confidence: 52, action: 'Hypoglycemia history' },
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800">Audit Trail</h2>
+        <p className="text-slate-500 text-sm">FDA 21 CFR Part 11 Compliance</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50 flex-wrap">
+          <input type="date" className="px-2 py-1.5 border border-slate-200 rounded text-sm" />
+          <input type="date" className="px-2 py-1.5 border border-slate-200 rounded text-sm" />
+          <select className="px-2 py-1.5 border border-slate-200 rounded text-sm">
+            <option>All Status</option>
+            <option>Approved</option>
+            <option>Modified</option>
+            <option>Rejected</option>
+          </select>
+          <button className="ml-auto px-3 py-1.5 bg-slate-100 text-slate-600 text-sm rounded hover:bg-slate-200">Export</button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">ID</th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">Time</th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">Status</th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">Medications</th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">Confidence</th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {logs.map(log => (
+                <tr key={log.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-mono text-slate-600">{log.id}</td>
+                  <td className="px-4 py-3 text-slate-600">{log.time}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${
+                      log.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                      log.status === 'Modified' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+                    }`}>{log.status}</span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">{log.meds}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div className={`h-full rounded-full ${log.confidence >= 80 ? 'bg-green-500' : log.confidence >= 60 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${log.confidence}%` }} />
+                      </div>
+                      <span className="text-[10px] text-slate-500">{log.confidence}%</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">{log.action}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Reusable Input Component
+function Input({ label, type = 'text', value, onChange, placeholder }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:border-blue-500 focus:outline-none text-sm"
+        placeholder={placeholder}
+      />
+    </div>
+  );
+}
+</file>
+
+<file path="index.html">
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GLYERAL — Physician Decision Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "glyeral-ui",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.71.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "vite": "^5.4.10"
+  }
+}
+</file>
+
+<file path="postcss.config.js">
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+</file>
+
+<file path="src/App.jsx">
+import React, { useState, useCallback } from 'react';
+import Header from './components/layout/Header';
+import Sidebar from './components/layout/Sidebar';
+import PatientSearch from './components/dashboard/PatientSearch';
+import DemographicsForm from './components/patient/DemographicsForm';
+import ConditionsForm from './components/patient/ConditionsForm';
+import LabsForm from './components/patient/LabsForm';
+import GlucoseForm from './components/patient/GlucoseForm';
+import MedicationsForm from './components/patient/MedicationsForm';
+import RecommendationList from './components/recommendations/RecommendationList';
+import AuditTable from './components/audit/AuditTable';
+import { EMPTY_PATIENT_DATA } from './data/dummyData';
+
+/**
+ * Root app: dashboard vs patient flow.
+ * - No patient selected → Dashboard (PatientSearch).
+ * - Patient selected → Sidebar + main content (demographics → … → recommendations, audit).
+ */
+export default function App() {
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [currentScreen, setCurrentScreen] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [patientData, setPatientData] = useState(EMPTY_PATIENT_DATA);
+
+  const selectPatient = useCallback((patient) => {
+    setSelectedPatient(patient);
+    setCurrentScreen('demographics');
+    setPatientData(EMPTY_PATIENT_DATA);
+  }, []);
+
+  const newPatient = useCallback(() => {
+    selectPatient({ id: 0, mrNumber: 'NEW', name: 'New Patient' });
+  }, [selectPatient]);
+
+  const backToSearch = useCallback(() => {
+    setSelectedPatient(null);
+    setCurrentScreen('dashboard');
+    setPatientData(EMPTY_PATIENT_DATA);
+  }, []);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((o) => !o);
+  }, []);
+
+  const renderMain = () => {
+    if (!selectedPatient) {
+      return (
+        <PatientSearch onSelectPatient={selectPatient} onNewPatient={newPatient} />
+      );
+    }
+
+    switch (currentScreen) {
+      case 'demographics':
+        return (
+          <DemographicsForm
+            data={patientData}
+            setData={setPatientData}
+            onNext={() => setCurrentScreen('conditions')}
+          />
+        );
+      case 'conditions':
+        return (
+          <ConditionsForm
+            data={patientData}
+            setData={setPatientData}
+            onNext={() => setCurrentScreen('labs')}
+          />
+        );
+      case 'labs':
+        return (
+          <LabsForm
+            data={patientData}
+            setData={setPatientData}
+            onNext={() => setCurrentScreen('glucose')}
+          />
+        );
+      case 'glucose':
+        return (
+          <GlucoseForm
+            data={patientData}
+            setData={setPatientData}
+            onNext={() => setCurrentScreen('medications')}
+          />
+        );
+      case 'medications':
+        return (
+          <MedicationsForm
+            data={patientData}
+            setData={setPatientData}
+            onNext={() => setCurrentScreen('recommendations')}
+          />
+        );
+      case 'recommendations':
+        return <RecommendationList patientData={patientData} />;
+      case 'audit':
+        return <AuditTable />;
+      default:
+        return (
+          <DemographicsForm
+            data={patientData}
+            setData={setPatientData}
+            onNext={() => setCurrentScreen('conditions')}
+          />
+        );
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <Header
+        selectedPatient={selectedPatient}
+        onMenuClick={toggleSidebar}
+      />
+      <div className="flex flex-1 overflow-hidden">
+        {selectedPatient && (
+          <Sidebar
+            currentScreen={currentScreen}
+            onNavigate={setCurrentScreen}
+            onBackToSearch={backToSearch}
+            patientData={patientData}
+            open={sidebarOpen}
+          />
+        )}
+        <main className="flex-1 overflow-auto p-4 md:p-6" role="main">
+          {renderMain()}
+        </main>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/audit/AuditTable.jsx">
+import React, { useState } from 'react';
+import { AUDIT_LOGS } from '../../data/dummyData';
+
+/**
+ * Audit trail table with date filters and status filter.
+ * Uses dummy AUDIT_LOGS; export button is UI-only.
+ */
+export default function AuditTable() {
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const filtered = AUDIT_LOGS.filter((log) => {
+    if (statusFilter !== 'All' && log.status !== statusFilter) return false;
+    // Dummy data has no date field; in real app filter by log.time
+    return true;
+  });
+
+  const getStatusClass = (status) => {
+    switch (status) {
+      case 'Approved':
+        return 'bg-green-100 text-green-700';
+      case 'Modified':
+        return 'bg-blue-100 text-blue-700';
+      case 'Rejected':
+        return 'bg-red-100 text-red-700';
+      default:
+        return 'bg-slate-100 text-slate-700';
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">Audit Trail</h2>
+        <p className="text-slate-500 text-sm">FDA 21 CFR Part 11 Compliance (dummy data)</p>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-3 border-b border-slate-100 flex items-center gap-3 bg-slate-50 flex-wrap">
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="px-2 py-1.5 border border-slate-200 rounded text-sm"
+            aria-label="From date"
+          />
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="px-2 py-1.5 border border-slate-200 rounded text-sm"
+            aria-label="To date"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-2 py-1.5 border border-slate-200 rounded text-sm"
+            aria-label="Filter by status"
+          >
+            <option value="All">All Status</option>
+            <option value="Approved">Approved</option>
+            <option value="Modified">Modified</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <button
+            type="button"
+            className="ml-auto px-3 py-1.5 bg-slate-100 text-slate-600 text-sm rounded hover:bg-slate-200"
+          >
+            Export
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm" role="table">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">
+                  ID
+                </th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">
+                  Time
+                </th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">
+                  Status
+                </th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">
+                  Medications
+                </th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">
+                  Confidence
+                </th>
+                <th className="px-4 py-2 text-left text-[10px] font-medium text-slate-500 uppercase">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filtered.map((log) => (
+                <tr key={log.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-mono text-slate-600">{log.id}</td>
+                  <td className="px-4 py-3 text-slate-600">{log.time}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`px-2 py-0.5 text-[10px] font-medium rounded-full ${getStatusClass(log.status)}`}
+                    >
+                      {log.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">{log.meds}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-12 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${
+                            log.confidence >= 80
+                              ? 'bg-green-500'
+                              : log.confidence >= 60
+                                ? 'bg-amber-500'
+                                : 'bg-red-500'
+                          }`}
+                          style={{ width: `${log.confidence}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-slate-500">{log.confidence}%</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">{log.action}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/dashboard/PatientCard.jsx">
+import React from 'react';
+import { User, ChevronRight } from 'lucide-react';
+
+/**
+ * Single patient row for the dashboard list.
+ * Shows avatar, name, MR#, age, gender, HbA1c; click selects patient.
+ */
+export default function PatientCard({ patient, onSelect }) {
+  const hba1cNum = parseFloat(patient.hba1c);
+  const hba1cClass = hba1cNum > 7 ? 'text-red-500' : 'text-green-600';
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(patient)}
+      className="w-full px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition text-left rounded-lg focus:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+    >
+      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <User className="w-5 h-5 text-primary-900" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-medium text-slate-800 truncate">{patient.name}</p>
+        <p className="text-xs text-slate-500">
+          {patient.mrNumber} • {patient.age}y • {patient.gender}
+        </p>
+      </div>
+      <div className="text-right flex-shrink-0">
+        <p className="text-xs text-slate-400">HbA1c</p>
+        <p className={`text-sm font-bold ${hba1cClass}`}>{patient.hba1c}%</p>
+      </div>
+      <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+    </button>
+  );
+}
+</file>
+
+<file path="src/components/dashboard/PatientSearch.jsx">
+import React, { useState, useMemo } from 'react';
+import { Search, Plus } from 'lucide-react';
+import { PATIENTS } from '../../data/dummyData';
+import PatientCard from './PatientCard';
+import StatsCards from './StatsCards';
+
+/**
+ * Dashboard: search input, "New Patient" button, stats, and filtered patient list.
+ * Uses dummy PATIENTS; filters by name or MR number.
+ */
+export default function PatientSearch({ onSelectPatient, onNewPatient }) {
+  const [search, setSearch] = useState('');
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return PATIENTS;
+    return PATIENTS.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) || p.mrNumber.toLowerCase().includes(q)
+    );
+  }, [search]);
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-800 font-display">Patient Search</h2>
+        <p className="text-slate-500 text-sm">Search for a patient or create a new record</p>
+      </div>
+
+      <div className="relative mb-6">
+        <Search
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
+          aria-hidden
+        />
+        <input
+          type="search"
+          placeholder="Search by name or MR number..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full pl-12 pr-4 py-3 border-2 border-slate-200 rounded-xl focus:border-primary-500 focus:outline-none text-lg"
+          aria-label="Search patients"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={onNewPatient}
+        className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 transition mb-6 text-sm font-medium"
+      >
+        <Plus className="w-4 h-4" />
+        New Patient
+      </button>
+
+      <StatsCards className="mb-6" />
+
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+          <h3 className="font-semibold text-slate-700 text-sm">Recent Patients</h3>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {filtered.length === 0 ? (
+            <div className="px-4 py-8 text-center text-slate-500 text-sm">
+              No patients match your search.
+            </div>
+          ) : (
+            filtered.map((patient) => (
+              <PatientCard key={patient.id} patient={patient} onSelect={onSelectPatient} />
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/dashboard/StatsCards.jsx">
+import React from 'react';
+import { DASHBOARD_STATS } from '../../data/dummyData';
+
+const colorMap = {
+  primary: 'text-primary-900',
+  amber: 'text-amber-500',
+  green: 'text-green-600',
+};
+
+/**
+ * KPI cards for the dashboard (e.g. Patients Today, Pending Reviews, Acceptance Rate).
+ */
+export default function StatsCards({ className = '' }) {
+  return (
+    <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 ${className}`}>
+      {DASHBOARD_STATS.map((stat, i) => (
+        <div
+          key={i}
+          className="bg-white p-4 rounded-xl shadow-sm border border-slate-100"
+        >
+          <div className={`text-2xl font-bold font-display ${colorMap[stat.color] || 'text-slate-700'}`}>
+            {stat.value}
+          </div>
+          <div className="text-xs text-slate-500">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/layout/Header.jsx">
+import React from 'react';
+import { Brain, User, Menu } from 'lucide-react';
+
+/**
+ * App header: logo, title, optional patient info and mobile menu trigger.
+ * Receives selectedPatient and onMenuClick from App.
+ */
+export default function Header({ selectedPatient, onMenuClick }) {
+  return (
+    <header className="bg-gradient-to-r from-primary-900 to-primary-800 text-white px-4 py-3 shadow-lg z-10">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {selectedPatient && (
+            <button
+              type="button"
+              onClick={onMenuClick}
+              className="p-2 hover:bg-white/10 rounded-lg lg:hidden"
+              aria-label="Toggle menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          )}
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 bg-white/20 rounded-lg flex items-center justify-center">
+              <Brain className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold tracking-tight font-display">GLYERAL</h1>
+              <p className="text-[10px] text-primary-200 -mt-1">Physician Decision Support</p>
+            </div>
+          </div>
+        </div>
+        {selectedPatient && (
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden sm:block">
+              <p className="text-sm font-medium">{selectedPatient.name}</p>
+              <p className="text-xs text-primary-200">MR# {selectedPatient.mrNumber}</p>
+            </div>
+            <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4" />
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}
+</file>
+
+<file path="src/components/layout/Sidebar.jsx">
+import React from 'react';
+import {
+  User,
+  Activity,
+  FlaskConical,
+  Droplets,
+  Pill,
+  Brain,
+  FileText,
+  ArrowLeft,
+} from 'lucide-react';
+import { NAV_ITEMS } from '../../data/dummyData';
+
+const iconMap = {
+  User,
+  Activity,
+  FlaskConical,
+  Droplets,
+  Pill,
+  Brain,
+  FileText,
+};
+
+/**
+ * Sidebar shown when a patient is selected.
+ * Renders nav items and optional key metrics block.
+ */
+export default function Sidebar({
+  currentScreen,
+  onNavigate,
+  onBackToSearch,
+  patientData,
+  open,
+}) {
+  if (!open) return null;
+
+  return (
+    <aside className="w-56 bg-white shadow-lg transition-all duration-300 overflow-hidden flex-shrink-0 border-r border-slate-200">
+      <div className="p-3 w-56">
+        <button
+          type="button"
+          onClick={onBackToSearch}
+          className="flex items-center gap-2 text-slate-500 hover:text-primary-900 text-sm mb-4 w-full"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Search
+        </button>
+
+        <nav className="space-y-1" aria-label="Patient sections">
+          {NAV_ITEMS.map(({ id, iconId, label }) => {
+            const Icon = iconMap[iconId];
+            const isActive = currentScreen === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onNavigate(id)}
+                className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-primary-900 text-white shadow-md'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                {Icon && <Icon className="w-4 h-4" />}
+                {label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {patientData && (
+          <div className="mt-6 p-3 bg-slate-50 rounded-lg">
+            <h4 className="text-[10px] font-semibold text-slate-400 uppercase mb-2">Key Metrics</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-slate-500">HbA1c</span>
+                <span
+                  className={`font-bold ${
+                    parseFloat(patientData.labs?.hba1c) > 7 ? 'text-red-500' : 'text-green-600'
+                  }`}
+                >
+                  {patientData.labs?.hba1c || '--'}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">eGFR</span>
+                <span
+                  className={`font-bold ${
+                    parseFloat(patientData.labs?.egfr) < 60 ? 'text-amber-500' : 'text-green-600'
+                  }`}
+                >
+                  {patientData.labs?.egfr || '--'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">BMI</span>
+                <span
+                  className={`font-bold ${
+                    patientData.demographics?.bmi > 30
+                      ? 'text-red-500'
+                      : patientData.demographics?.bmi > 25
+                        ? 'text-amber-500'
+                        : 'text-green-600'
+                  }`}
+                >
+                  {patientData.demographics?.bmi ?? '--'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </aside>
+  );
+}
+</file>
+
+<file path="src/components/patient/ConditionsForm.jsx">
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
+
+/**
+ * Conditions Form Component with Validation
+ * 
+ * VALIDATION RULES:
+ * - DM (Diabetes Mellitus) must always be checked (required)
+ * - Other conditions are optional
+ * - At least DM must be selected (enforced by default value)
+ */
+
+const CONDITIONS = [
+  {
+    key: 'dm',
+    label: 'Diabetes Mellitus',
+    desc: 'Primary condition - always checked',
+    required: true,
+  },
+  {
+    key: 'ckd',
+    label: 'Chronic Kidney Disease',
+    desc: 'Affects Metformin dosing',
+  },
+  {
+    key: 'cad',
+    label: 'Coronary Artery Disease',
+    desc: 'Favors SGLT2i/GLP-1 RA',
+  },
+  {
+    key: 'hypertension',
+    label: 'Hypertension',
+    desc: 'CV risk factor',
+  },
+  {
+    key: 'pregnancy',
+    label: 'Pregnancy',
+    desc: 'BLOCKS oral medications',
+    warning: true,
+  },
+  {
+    key: 'neuropathy',
+    label: 'Neuropathy',
+    desc: 'DM complication',
+  },
+  {
+    key: 'retinopathy',
+    label: 'Retinopathy',
+    desc: 'DM complication',
+  },
+  {
+    key: 'obesity',
+    label: 'Obesity',
+    desc: 'BMI > 30 or clinical diagnosis',
+  },
+];
+
+export default function ConditionsForm({ data, setData, onNext }) {
+  const { watch, setValue, handleSubmit, formState: { isValid } } = useForm({
+    defaultValues: data.healthIssues,
+    mode: 'onChange',
+  });
+
+  // Sync form data with parent state
+  const watchedData = watch();
+  useEffect(() => {
+    setData({ ...data, healthIssues: watchedData });
+  }, [watchedData]);
+
+  // Ensure DM is always checked
+  useEffect(() => {
+    if (!watchedData.dm) {
+      setValue('dm', true);
+    }
+  }, [watchedData.dm, setValue]);
+
+  const toggle = (key) => {
+    if (key === 'dm') return; // DM cannot be unchecked
+    setValue(key, !watchedData[key]);
+  };
+
+  const onSubmit = (formData) => {
+    setData({ ...data, healthIssues: formData });
+    onNext();
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">Health Issues & Conditions</h2>
+        <p className="text-slate-500 text-sm">Select all applicable conditions</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="space-y-2">
+            {CONDITIONS.map(({ key, label, desc, required, warning }) => {
+              const isChecked = watch(key);
+              return (
+                <div
+                  key={key}
+                  onClick={() => toggle(key)}
+                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3 ${
+                    isChecked
+                      ? 'border-primary-500 bg-primary-50'
+                      : 'border-slate-200 hover:border-slate-300'
+                  } ${required ? 'cursor-not-allowed opacity-75' : ''}`}
+                  role="button"
+                  tabIndex={required ? -1 : 0}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && !required) {
+                      e.preventDefault();
+                      toggle(key);
+                    }
+                  }}
+                >
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      isChecked ? 'border-primary-500 bg-primary-500' : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    {isChecked && <CheckCircle className="w-3 h-3 text-white" />}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-slate-800 text-sm">{label}</p>
+                    <p className="text-xs text-slate-500">{desc}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {required && (
+                      <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full font-medium">
+                        Required
+                      </span>
+                    )}
+                    {warning && isChecked && (
+                      <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full flex items-center gap-1 font-medium">
+                        <AlertTriangle className="w-3 h-3" />
+                        Blocks Oral
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Navigation */}
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors"
+            >
+              Next: Lab Values <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/patient/DemographicsForm.jsx">
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Scale, ChevronRight } from 'lucide-react';
+import Input from '../ui/Input';
+
+/**
+ * Demographics Form Component with Validation
+ * 
+ * VALIDATION RULES:
+ * - MR Number: Required, format MR-YYYY-XXX
+ * - First Name: Required, min 2 characters
+ * - Last Name: Required, min 2 characters
+ * - Date of Birth: Required, not in future, reasonable age (0-150)
+ * - Gender: Required (Male/Female)
+ * - Weight: Required, 20-300 kg
+ * - Height: Required, 100-250 cm
+ * 
+ * Auto-calculates: Age (from DOB), BMI (from weight/height)
+ */
+export default function DemographicsForm({ data, setData, onNext }) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid },
+  } = useForm({
+    defaultValues: data.demographics,
+    mode: 'onChange', // Validate on every change
+  });
+
+  // Watch weight and height for BMI calculation
+  const weight = watch('weight');
+  const height = watch('height');
+  const dob = watch('dob');
+
+  // Auto-calculate age from DOB
+  useEffect(() => {
+    if (dob) {
+      const birth = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      if (
+        today.getMonth() < birth.getMonth() ||
+        (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+      ) {
+        age--;
+      }
+      setValue('age', age, { shouldValidate: false });
+    }
+  }, [dob, setValue]);
+
+  // Auto-calculate BMI from weight and height
+  useEffect(() => {
+    if (weight && height) {
+      const heightInMeters = parseFloat(height) / 100;
+      if (heightInMeters > 0) {
+        const w = parseFloat(weight);
+        const bmi = Math.round((w / (heightInMeters * heightInMeters)) * 10) / 10;
+        setValue('bmi', bmi, { shouldValidate: false });
+      }
+    }
+  }, [weight, height, setValue]);
+
+  // Sync form data with parent state
+  const watchedData = watch();
+  useEffect(() => {
+    setData({ ...data, demographics: watchedData });
+  }, [watchedData]);
+
+  /**
+   * Get BMI styling based on value
+   */
+  const getBmiStyle = (bmi) => {
+    if (!bmi) return 'bg-slate-100 text-slate-500';
+    if (bmi < 18.5) return 'bg-amber-100 text-amber-700';
+    if (bmi < 25) return 'bg-green-100 text-green-700';
+    if (bmi < 30) return 'bg-amber-100 text-amber-700';
+    return 'bg-red-100 text-red-700';
+  };
+
+  const getBmiLabel = (bmi) => {
+    if (!bmi) return '';
+    if (bmi >= 30) return ' (Obese)';
+    if (bmi >= 25) return ' (Overweight)';
+    if (bmi >= 18.5) return ' (Normal)';
+    return ' (Underweight)';
+  };
+
+  const onSubmit = (formData) => {
+    setData({ ...data, demographics: formData });
+    onNext();
+  };
+
+  const currentBmi = watch('bmi');
+  const currentAge = watch('age');
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">Patient Demographics</h2>
+        <p className="text-slate-500 text-sm">Basic information for the care plan</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="MR Number"
+              {...register('mrNumber', {
+                required: 'MR Number is required',
+                pattern: {
+                  value: /^MR-\d{4}-[A-Z0-9]{3}$/i,
+                  message: 'Format: MR-YYYY-XXX (e.g., MR-2024-001)',
+                },
+              })}
+              placeholder="MR-2024-XXX"
+              error={errors.mrNumber?.message}
+              required
+            />
+
+            <Input
+              label="First Name"
+              {...register('firstName', {
+                required: 'First Name is required',
+                minLength: {
+                  value: 2,
+                  message: 'First Name must be at least 2 characters',
+                },
+              })}
+              error={errors.firstName?.message}
+              required
+            />
+
+            <Input
+              label="Last Name"
+              {...register('lastName', {
+                required: 'Last Name is required',
+                minLength: {
+                  value: 2,
+                  message: 'Last Name must be at least 2 characters',
+                },
+              })}
+              error={errors.lastName?.message}
+              required
+            />
+
+            <Input
+              label="Date of Birth"
+              type="date"
+              {...register('dob', {
+                required: 'Date of Birth is required',
+                validate: (value) => {
+                  const birth = new Date(value);
+                  const today = new Date();
+                  if (birth > today) {
+                    return 'Date of Birth cannot be in the future';
+                  }
+                  const age = today.getFullYear() - birth.getFullYear();
+                  if (age > 150) {
+                    return 'Please enter a valid date of birth';
+                  }
+                  return true;
+                },
+              })}
+              error={errors.dob?.message}
+              required
+            />
+
+            {/* Gender Selection */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                Gender <span className="text-red-500">*</span>
+              </label>
+              <div className="flex gap-4">
+                {['Male', 'Female'].map((g) => (
+                  <label key={g} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      value={g}
+                      {...register('gender', { required: 'Gender is required' })}
+                      className="w-4 h-4 text-primary-900 focus:ring-primary-500"
+                    />
+                    <span className="text-sm text-slate-700">{g}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.gender && (
+                <p className="text-xs text-red-600 mt-1">{errors.gender.message}</p>
+              )}
+            </div>
+
+            {/* Age Display (read-only, auto-calculated) */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Age</label>
+              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 text-sm">
+                {currentAge || '--'} years
+              </div>
+            </div>
+
+            <Input
+              label="Weight (kg)"
+              type="number"
+              {...register('weight', {
+                required: 'Weight is required',
+                min: {
+                  value: 20,
+                  message: 'Weight must be at least 20 kg',
+                },
+                max: {
+                  value: 300,
+                  message: 'Weight must be less than 300 kg',
+                },
+                valueAsNumber: true,
+              })}
+              placeholder="75"
+              error={errors.weight?.message}
+              required
+            />
+
+            <Input
+              label="Height (cm)"
+              type="number"
+              {...register('height', {
+                required: 'Height is required',
+                min: {
+                  value: 100,
+                  message: 'Height must be at least 100 cm',
+                },
+                max: {
+                  value: 250,
+                  message: 'Height must be less than 250 cm',
+                },
+                valueAsNumber: true,
+              })}
+              placeholder="175"
+              error={errors.height?.message}
+              required
+            />
+
+            {/* BMI Display (read-only, auto-calculated) */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">BMI (Calculated)</label>
+              <span
+                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${getBmiStyle(
+                  currentBmi
+                )}`}
+              >
+                <Scale className="w-4 h-4" />
+                {currentBmi || '--'} kg/m²
+                {getBmiLabel(currentBmi)}
+              </span>
+            </div>
+          </div>
+
+          {/* Navigation */}
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              disabled={!isValid}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next: Health Issues <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/patient/GlucoseForm.jsx">
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { AlertTriangle, ChevronRight } from 'lucide-react';
+
+/**
+ * Glucose Form Component with Validation
+ * 
+ * VALIDATION RULES:
+ * - All fields optional (patient may not have all readings)
+ * - If entered, must be valid number: 0-600 mg/dL (reasonable range)
+ * - Auto-calculates average from non-empty readings
+ */
+
+const TIME_SLOTS = [
+  { key: 'beforeBreakfast', label: 'Before Breakfast', target: '80-130' },
+  { key: 'beforeLunch', label: 'Before Lunch', target: '80-130' },
+  { key: 'beforeDinner', label: 'Before Dinner', target: '80-130' },
+  { key: 'beforeBed', label: 'Before Bed', target: '100-140' },
+];
+
+export default function GlucoseForm({ data, setData, onNext }) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: data.bloodSugar,
+    mode: 'onChange',
+  });
+
+  const watchedData = watch();
+
+  // Auto-calculate average
+  useEffect(() => {
+    const readings = [
+      watchedData.beforeBreakfast,
+      watchedData.beforeLunch,
+      watchedData.beforeDinner,
+      watchedData.beforeBed,
+    ]
+      .filter((v) => v && !isNaN(parseFloat(v)))
+      .map((v) => parseFloat(v));
+
+    const average = readings.length
+      ? Math.round(readings.reduce((a, b) => a + b, 0) / readings.length)
+      : 0;
+
+    setValue('average', average, { shouldValidate: false });
+  }, [
+    watchedData.beforeBreakfast,
+    watchedData.beforeLunch,
+    watchedData.beforeDinner,
+    watchedData.beforeBed,
+    setValue,
+  ]);
+
+  // Sync form data with parent state
+  useEffect(() => {
+    setData({ ...data, bloodSugar: watchedData });
+  }, [watchedData]);
+
+  const getColor = (value) => {
+    if (!value) return 'border-slate-200';
+    const v = parseFloat(value);
+
+    if (v < 70) return 'border-red-500 bg-red-50';
+    if (v <= 140) return 'border-green-500 bg-green-50';
+    if (v <= 180) return 'border-amber-500 bg-amber-50';
+    return 'border-red-500 bg-red-50';
+  };
+
+  const hasHypo = Object.values(watchedData).some((v) => v && parseFloat(v) < 70);
+
+  const getAverageColor = (average) => {
+    if (!average) return 'bg-slate-100';
+    if (average <= 154) return 'bg-green-100';
+    return 'bg-amber-100';
+  };
+
+  const onSubmit = (formData) => {
+    setData({ ...data, bloodSugar: formData });
+    onNext();
+  };
+
+  const average = watch('average');
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">Daily Blood Sugar</h2>
+        <p className="text-slate-500 text-sm">Enter glucose readings in mg/dL</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="space-y-3">
+            {TIME_SLOTS.map(({ key, label, target }) => {
+              const value = watch(key);
+              const error = errors[key];
+
+              return (
+                <div key={key} className="flex items-center gap-3">
+                  <div className="w-32 text-sm text-slate-700 font-medium">{label}</div>
+                  <div className={`flex-1 flex items-center border-2 rounded-lg transition-colors ${getColor(value)}`}>
+                    <input
+                      type="number"
+                      {...register(key, {
+                        min: {
+                          value: 0,
+                          message: 'Value must be positive',
+                        },
+                        max: {
+                          value: 600,
+                          message: 'Value must be less than 600 mg/dL',
+                        },
+                        valueAsNumber: true,
+                      })}
+                      className="flex-1 px-3 py-2 bg-transparent focus:outline-none text-center font-mono text-sm"
+                      placeholder="--"
+                    />
+                    <span className="px-3 text-slate-400 text-xs">mg/dL</span>
+                  </div>
+                  <div className="w-20 text-xs text-slate-400">{target}</div>
+                  {error && (
+                    <p className="text-xs text-red-600 absolute mt-8 ml-32">{error.message}</p>
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Average Display */}
+            <div className="flex items-center gap-3 pt-3 border-t border-slate-200">
+              <div className="w-32 text-sm font-bold text-slate-700">Average</div>
+              <div className={`flex-1 flex items-center justify-center py-2 rounded-lg ${getAverageColor(average)}`}>
+                <span className="text-xl font-bold font-mono text-slate-800">{average || '--'}</span>
+                <span className="ml-2 text-slate-500 text-sm">mg/dL</span>
+              </div>
+              <div className="w-20 text-xs text-slate-400">&lt;154</div>
+            </div>
+          </div>
+
+          {/* Hypoglycemia Warning */}
+          {hasHypo && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse flex-shrink-0" />
+              <div>
+                <p className="font-medium text-red-700 text-sm">Hypoglycemia Detected</p>
+                <p className="text-xs text-red-600">Reading below 70 mg/dL</p>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors"
+            >
+              Next: Medications <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/patient/LabsForm.jsx">
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Activity, ChevronRight } from 'lucide-react';
+
+/**
+ * Labs Form Component with Validation
+ * 
+ * VALIDATION RULES:
+ * - HbA1c: Required, 0-20% (critical/primary)
+ * - eGFR: Required, 0-200 mL/min (critical/primary)
+ * - Creatinine: Optional, 0-10 mg/dL
+ * - LDL: Optional, 0-500 mg/dL
+ * - Urine Albumin: Optional, 0-1000 mg/L
+ */
+
+const LABS = [
+  { key: 'hba1c', label: 'HbA1c', unit: '%', normal: '< 5.7', critical: true },
+  { key: 'egfr', label: 'eGFR', unit: 'mL/min', normal: '> 90', critical: true },
+  { key: 'creatinine', label: 'Creatinine', unit: 'mg/dL', normal: '0.7-1.3', critical: false },
+  { key: 'lipidPanel', label: 'LDL', unit: 'mg/dL', normal: '< 100', critical: false },
+  { key: 'urineAlbumin', label: 'Urine Albumin', unit: 'mg/L', normal: '< 30', critical: false },
+];
+
+export default function LabsForm({ data, setData, onNext }) {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isValid },
+  } = useForm({
+    defaultValues: data.labs,
+    mode: 'onChange',
+  });
+
+  // Sync form data with parent state
+  const watchedData = watch();
+  useEffect(() => {
+    setData({ ...data, labs: watchedData });
+  }, [watchedData]);
+
+  const getStatusStyle = (key, value) => {
+    if (!value) return 'border-slate-200';
+    const v = parseFloat(value);
+
+    if (key === 'hba1c') {
+      if (v < 5.7) return 'border-green-500 bg-green-50';
+      if (v < 7) return 'border-amber-500 bg-amber-50';
+      return 'border-red-500 bg-red-50';
+    }
+
+    if (key === 'egfr') {
+      if (v >= 90) return 'border-green-500 bg-green-50';
+      if (v >= 60) return 'border-amber-500 bg-amber-50';
+      return 'border-red-500 bg-red-50';
+    }
+
+    return 'border-slate-200';
+  };
+
+  const getCkdStage = (egfr) => {
+    if (!egfr) return null;
+    const v = parseFloat(egfr);
+
+    if (v >= 90) return { stage: '1', label: 'Normal', color: 'bg-green-100 text-green-700' };
+    if (v >= 60) return { stage: '2', label: 'Mild', color: 'bg-amber-100 text-amber-700' };
+    if (v >= 30) return { stage: '3', label: 'Moderate', color: 'bg-orange-100 text-orange-700' };
+    if (v >= 15) return { stage: '4', label: 'Severe', color: 'bg-red-100 text-red-700' };
+    return { stage: '5', label: 'Failure', color: 'bg-red-100 text-red-700' };
+  };
+
+  const onSubmit = (formData) => {
+    setData({ ...data, labs: formData });
+    onNext();
+  };
+
+  const egfr = watch('egfr');
+  const ckd = getCkdStage(egfr);
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">Laboratory Values</h2>
+        <p className="text-slate-500 text-sm">HbA1c and eGFR are required for ML prediction</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="grid grid-cols-2 gap-4">
+            {LABS.map(({ key, label, unit, normal, critical }) => {
+              const value = watch(key);
+              const error = errors[key];
+              const isRequired = critical;
+
+              return (
+                <div key={key}>
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
+                    {label}
+                    {critical && (
+                      <span className="px-1.5 py-0.5 bg-primary-100 text-primary-700 text-[10px] rounded font-medium">
+                        PRIMARY
+                      </span>
+                    )}
+                  </label>
+                  <div
+                    className={`flex items-center border-2 rounded-lg transition-colors ${getStatusStyle(
+                      key,
+                      value
+                    )}`}
+                  >
+                    <input
+                      type="number"
+                      step="0.1"
+                      {...register(key, {
+                        required: isRequired ? `${label} is required` : false,
+                        min: {
+                          value: 0,
+                          message: `${label} must be positive`,
+                        },
+                        max: {
+                          value:
+                            key === 'hba1c'
+                              ? 20
+                              : key === 'egfr'
+                                ? 200
+                                : key === 'creatinine'
+                                  ? 10
+                                  : key === 'lipidPanel'
+                                    ? 500
+                                    : 1000,
+                          message: `Please enter a valid ${label} value`,
+                        },
+                        valueAsNumber: true,
+                      })}
+                      className="flex-1 px-3 py-2 bg-transparent focus:outline-none text-sm"
+                      placeholder="--"
+                    />
+                    <span className="px-3 text-slate-400 text-xs font-medium">{unit}</span>
+                  </div>
+                  {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+                  <p className="text-[10px] text-slate-400 mt-1">Normal: {normal}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* CKD Stage Display */}
+          {ckd && (
+            <div className="mt-4 p-3 bg-slate-50 rounded-lg flex items-center gap-3">
+              <Activity className="w-5 h-5 text-slate-600 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-slate-500 mb-1">CKD Stage</p>
+                <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${ckd.color}`}>
+                  Stage {ckd.stage}: {ckd.label}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Navigation */}
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              disabled={!isValid}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next: Blood Sugar <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/patient/MedicationsForm.jsx">
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { Brain, ChevronRight } from 'lucide-react';
+
+/**
+ * Medications Form Component with Validation
+ * 
+ * VALIDATION RULES:
+ * - All medications optional (patient may not be on all meds)
+ * - If entered, must be within specified ranges:
+ *   - Metformin: 0-2000mg (slider)
+ *   - Glimepiride: 0-4mg (select)
+ *   - Tradjenta: toggle (on/off)
+ *   - Farxiga: 0, 5, or 10mg (select)
+ *   - Semaglutide: 0-2mg (slider)
+ *   - Insulins: 0-100 units (number)
+ *   - Repaglinide: 0, 0.5, 1, 1.5, or 2mg (select)
+ */
+
+const MEDICATIONS = [
+  {
+    key: 'metformin',
+    label: 'Metformin',
+    class: 'Biguanide',
+    range: '500-2000mg',
+    type: 'slider',
+    min: 0,
+    max: 2000,
+    step: 250,
+  },
+  {
+    key: 'glimepiride',
+    label: 'Glimepiride',
+    class: 'Sulfonylurea',
+    range: '1-4mg',
+    type: 'select',
+    options: [0, 1, 2, 3, 4],
+  },
+  {
+    key: 'tradjenta',
+    label: 'Tradjenta',
+    class: 'DPP-4i',
+    range: '5mg',
+    type: 'toggle',
+  },
+  {
+    key: 'farxiga',
+    label: 'Farxiga',
+    class: 'SGLT2i',
+    range: '5-10mg',
+    type: 'select',
+    options: [0, 5, 10],
+  },
+  {
+    key: 'semaglutide',
+    label: 'Semaglutide (Ozempic)',
+    class: 'GLP-1 RA',
+    range: '0.25-2mg',
+    type: 'slider',
+    min: 0,
+    max: 2,
+    step: 0.25,
+  },
+  {
+    key: 'glargine',
+    label: 'Glargine (Before Dinner)',
+    class: 'Basal Insulin',
+    range: '4-100 units',
+    type: 'number',
+    min: 0,
+    max: 100,
+  },
+  {
+    key: 'lispro_breakfast',
+    label: 'Lispro (Before Breakfast)',
+    class: 'Bolus Insulin',
+    range: '4-100 units',
+    type: 'number',
+    min: 0,
+    max: 100,
+  },
+  {
+    key: 'lispro_lunch',
+    label: 'Lispro (Before Lunch)',
+    class: 'Bolus Insulin',
+    range: '4-100 units',
+    type: 'number',
+    min: 0,
+    max: 100,
+  },
+  {
+    key: 'lispro_dinner',
+    label: 'Lispro (Before Dinner)',
+    class: 'Bolus Insulin',
+    range: '4-100 units',
+    type: 'number',
+    min: 0,
+    max: 100,
+  },
+  {
+    key: 'repaglinide_breakfast',
+    label: 'Repaglinide (Before Breakfast)',
+    class: 'Meglitinide',
+    range: '0.5-2mg',
+    type: 'select',
+    options: [0, 0.5, 1, 1.5, 2],
+  },
+  {
+    key: 'repaglinide_lunch',
+    label: 'Repaglinide (Before Lunch)',
+    class: 'Meglitinide',
+    range: '0.5-2mg',
+    type: 'select',
+    options: [0, 0.5, 1, 1.5, 2],
+  },
+  {
+    key: 'repaglinide_dinner',
+    label: 'Repaglinide (Before Dinner)',
+    class: 'Meglitinide',
+    range: '0.5-2mg',
+    type: 'select',
+    options: [0, 0.5, 1, 1.5, 2],
+  },
+];
+
+export default function MedicationsForm({ data, setData, onNext }) {
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    defaultValues: data.medications,
+    mode: 'onChange',
+  });
+
+  // Sync form data with parent state
+  const watchedData = watch();
+  useEffect(() => {
+    setData({ ...data, medications: watchedData });
+  }, [watchedData]);
+
+  const update = (key, value) => {
+    setValue(key, value);
+  };
+
+  const renderMedicationInput = (med) => {
+    const { key, label, range, type, options, min, max, step } = med;
+    const value = watch(key);
+    const error = errors[key];
+
+    switch (type) {
+      case 'toggle':
+        return (
+          <div>
+            <button
+              type="button"
+              onClick={() => update(key, !value)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition flex-shrink-0 ${
+                value ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-600'
+              }`}
+            >
+              {value ? 'ON' : 'OFF'}
+            </button>
+            <input type="hidden" {...register(key)} value={value} />
+          </div>
+        );
+
+      case 'select':
+        return (
+          <div>
+            <select
+              {...register(key, {
+                min: { value: 0, message: 'Invalid value' },
+                valueAsNumber: true,
+              })}
+              className="px-2 py-1 border border-slate-200 rounded text-sm flex-shrink-0 focus:border-primary-500 focus:outline-none"
+            >
+              {options.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt === 0 ? 'None' : `${opt}${key.includes('repaglinide') ? 'mg' : 'mg'}`}
+                </option>
+              ))}
+            </select>
+            {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+          </div>
+        );
+
+      case 'slider':
+        return (
+          <div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <input
+                type="range"
+                min={min}
+                max={max}
+                step={step}
+                {...register(key, {
+                  min: { value: min, message: `Minimum: ${min}mg` },
+                  max: { value: max, message: `Maximum: ${max}mg` },
+                  valueAsNumber: true,
+                })}
+                className="w-20"
+              />
+              <span className="w-14 text-right text-xs font-mono text-slate-700">{value}mg</span>
+            </div>
+            {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+          </div>
+        );
+
+      case 'number':
+        return (
+          <div>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <input
+                type="number"
+                min={min}
+                max={max}
+                {...register(key, {
+                  min: { value: min, message: `Minimum: ${min} units` },
+                  max: { value: max, message: `Maximum: ${max} units` },
+                  valueAsNumber: true,
+                })}
+                className="w-16 px-2 py-1 border border-slate-200 rounded text-sm text-right focus:border-primary-500 focus:outline-none"
+                placeholder="0"
+              />
+              <span className="text-xs text-slate-500">u</span>
+            </div>
+            {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const onSubmit = (formData) => {
+    setData({ ...data, medications: formData });
+    onNext();
+  };
+
+  return (
+    <div className="max-w-3xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">Current Medications</h2>
+        <p className="text-slate-500 text-sm">Enter current diabetes medications</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {MEDICATIONS.map((med) => (
+              <div
+                key={med.key}
+                className="p-3 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-slate-800 text-sm truncate">{med.label}</p>
+                    <p className="text-xs text-slate-500">{med.range}</p>
+                  </div>
+                  {renderMedicationInput(med)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Navigation */}
+          <div className="mt-6 flex justify-end">
+            <button
+              type="submit"
+              className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+            >
+              <Brain className="w-4 h-4" />
+              Get AI Recommendations
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/patient/PatientDetailPlaceholder.jsx">
+import React from 'react';
+import { ChevronRight } from 'lucide-react';
+
+/**
+ * Placeholder for Demographics, Conditions, Labs, Glucose, Medications.
+ * Shows section title and short description; real forms can replace this later.
+ */
+export default function PatientDetailPlaceholder({ title, description, onNext, nextLabel }) {
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-slate-800 font-display">{title}</h2>
+        <p className="text-slate-500 text-sm">{description}</p>
+      </div>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 text-center">
+        <p className="text-slate-500 mb-6">
+          Form components for this section can be added here. Data is in <code className="bg-slate-100 px-1 rounded">patientData</code>.
+        </p>
+        {onNext && (
+          <button
+            type="button"
+            onClick={onNext}
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium mx-auto"
+          >
+            {nextLabel || 'Next'} <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/recommendations/MedicationCard.jsx">
+import React from 'react';
+import { CheckCircle, AlertTriangle, XCircle, Edit3 } from 'lucide-react';
+
+const statusConfig = {
+  approved: {
+    border: 'border-green-500 bg-green-50',
+    icon: CheckCircle,
+    iconClass: 'text-green-600',
+    bgIcon: 'bg-green-100',
+  },
+  warning: {
+    border: 'border-amber-500 bg-amber-50',
+    icon: AlertTriangle,
+    iconClass: 'text-amber-600',
+    bgIcon: 'bg-amber-100',
+  },
+  modified: {
+    border: 'border-blue-500 bg-blue-50',
+    icon: Edit3,
+    iconClass: 'text-blue-600',
+    bgIcon: 'bg-blue-100',
+  },
+  blocked: {
+    border: 'border-red-500 bg-red-50',
+    icon: XCircle,
+    iconClass: 'text-red-600',
+    bgIcon: 'bg-red-100',
+  },
+};
+
+/**
+ * Single recommendation card: medication name, dose, confidence bar, status, actions.
+ */
+export default function MedicationCard({
+  recommendation,
+  isActioned,
+  onAccept,
+  onModify,
+  onReject,
+  actionBadge,
+}) {
+  const config = statusConfig[recommendation.status] || statusConfig.approved;
+  const Icon = config.icon;
+  const showActions =
+    recommendation.status !== 'blocked' && !isActioned && (onAccept || onModify || onReject);
+
+  return (
+    <div
+      className={`bg-white rounded-lg shadow-sm border-2 p-3 transition-all ${config.border} ${
+        isActioned ? 'opacity-60' : ''
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <div
+          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${config.bgIcon}`}
+        >
+          <Icon className={`w-4 h-4 ${config.iconClass}`} />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <h4
+              className={`font-bold text-sm ${
+                recommendation.status === 'blocked' ? 'line-through text-slate-400' : 'text-slate-800'
+              }`}
+            >
+              {recommendation.med.replace(/_/g, ' ')}
+            </h4>
+            {recommendation.status === 'blocked' && (
+              <span className="px-1.5 py-0.5 bg-red-100 text-red-700 text-[10px] font-medium rounded">
+                BLOCKED
+              </span>
+            )}
+            {recommendation.status === 'modified' && (
+              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-medium rounded">
+                MODIFIED
+              </span>
+            )}
+            {actionBadge}
+          </div>
+          <p className="text-slate-600 text-xs mb-2">{recommendation.dose}</p>
+
+          {recommendation.status === 'modified' && recommendation.notes && (
+            <p className="text-xs text-blue-600 mb-2 italic">Note: {recommendation.notes}</p>
+          )}
+
+          <div className="flex items-center gap-2 mb-2">
+            <div className="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden max-w-[100px]">
+              <div
+                className={`h-full rounded-full ${
+                  recommendation.confidence >= 80
+                    ? 'bg-green-500'
+                    : recommendation.confidence >= 60
+                      ? 'bg-amber-500'
+                      : 'bg-red-500'
+                }`}
+                style={{ width: `${recommendation.confidence}%` }}
+              />
+            </div>
+            <span className="text-[10px] text-slate-500">{recommendation.confidence}%</span>
+            {recommendation.guidelines?.[0] && (
+              <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] rounded hidden sm:inline">
+                {recommendation.guidelines[0]}
+              </span>
+            )}
+          </div>
+
+          {recommendation.warnings?.length > 0 && (
+            <p className="flex items-center gap-1 text-[10px] text-amber-600">
+              <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+              {recommendation.warnings[0]}
+            </p>
+          )}
+        </div>
+
+        {showActions && (
+          <div className="flex gap-1 flex-shrink-0">
+            {onAccept && (
+              <button
+                type="button"
+                onClick={() => onAccept(recommendation)}
+                className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                title="Accept"
+              >
+                <CheckCircle className="w-4 h-4" />
+              </button>
+            )}
+            {onModify && (
+              <button
+                type="button"
+                onClick={() => onModify(recommendation)}
+                className="p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+                title="Modify"
+              >
+                <Edit3 className="w-4 h-4" />
+              </button>
+            )}
+            {onReject && (
+              <button
+                type="button"
+                onClick={() => onReject(recommendation)}
+                className="p-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
+                title="Reject"
+              >
+                <XCircle className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
+        {isActioned && (
+          <span className="text-[10px] text-slate-400 flex-shrink-0">✓ Saved</span>
+        )}
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/recommendations/RecommendationList.jsx">
+import React, { useState } from 'react';
+import { Brain, Loader2, Pill, CheckCircle, Edit3, XCircle } from 'lucide-react';
+import { SAMPLE_RECOMMENDATIONS } from '../../data/dummyData';
+import MedicationCard from './MedicationCard';
+
+/**
+ * Recommendations view: generate button, loading state, list grouped by category.
+ * Uses dummy SAMPLE_RECOMMENDATIONS; tracks accept/modify/reject per rec.
+ */
+export default function RecommendationList({ patientData }) {
+  const [recommendations, setRecommendations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [actionedRecs, setActionedRecs] = useState({});
+  const [modifyingRec, setModifyingRec] = useState(null);
+
+  const generate = () => {
+    setIsLoading(true);
+    setActionedRecs({});
+    setTimeout(() => {
+      setRecommendations(SAMPLE_RECOMMENDATIONS);
+      setIsLoading(false);
+    }, 1200);
+  };
+
+  const handleAccept = (rec) => {
+    setActionedRecs((prev) => ({
+      ...prev,
+      [rec.id]: { action: 'accepted', timestamp: new Date().toISOString() },
+    }));
+  };
+
+  const handleReject = (rec) => {
+    setActionedRecs((prev) => ({
+      ...prev,
+      [rec.id]: { action: 'rejected', timestamp: new Date().toISOString() },
+    }));
+  };
+
+  const handleModifySave = (modifiedRec) => {
+    setRecommendations((prev) =>
+      prev.map((r) => (r.id === modifiedRec.id ? modifiedRec : r))
+    );
+    setActionedRecs((prev) => ({
+      ...prev,
+      [modifiedRec.id]: {
+        action: 'modified',
+        timestamp: new Date().toISOString(),
+        notes: modifiedRec.notes,
+      },
+    }));
+    setModifyingRec(null);
+  };
+
+  const getActionBadge = (recId) => {
+    const action = actionedRecs[recId];
+    if (!action) return null;
+    const styles = {
+      accepted: 'bg-green-100 text-green-700 border-green-200',
+      rejected: 'bg-red-100 text-red-700 border-red-200',
+      modified: 'bg-blue-100 text-blue-700 border-blue-200',
+    };
+    const icons = {
+      accepted: <CheckCircle className="w-3 h-3" />,
+      rejected: <XCircle className="w-3 h-3" />,
+      modified: <Edit3 className="w-3 h-3" />,
+    };
+    return (
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${styles[action.action]}`}
+      >
+        {icons[action.action]}
+        {action.action.charAt(0).toUpperCase() + action.action.slice(1)}
+      </span>
+    );
+  };
+
+  const grouped = recommendations.reduce((acc, rec) => {
+    const cat = rec.category || 'Other';
+    if (!acc[cat]) acc[cat] = [];
+    acc[cat].push(rec);
+    return acc;
+  }, {});
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {modifyingRec && (
+        <ModifyModal
+          recommendation={modifyingRec}
+          onSave={handleModifySave}
+          onClose={() => setModifyingRec(null)}
+        />
+      )}
+
+      <div className="mb-5 flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 font-display">AI Medication Recommendations</h2>
+          <p className="text-slate-500 text-sm">Based on patient profile (dummy data)</p>
+        </div>
+        <button
+          type="button"
+          onClick={generate}
+          disabled={isLoading}
+          className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium disabled:opacity-50"
+        >
+          {isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Brain className="w-4 h-4" />
+          )}
+          {isLoading ? 'Analyzing...' : 'Generate Recommendations'}
+        </button>
+      </div>
+
+      {patientData && (
+        <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-3 mb-4 flex items-center gap-4 flex-wrap text-sm">
+          <span className="text-slate-500">
+            HbA1c:{' '}
+            <strong
+              className={
+                parseFloat(patientData.labs?.hba1c) > 7 ? 'text-red-500' : 'text-green-600'
+              }
+            >
+              {patientData.labs?.hba1c || '--'}%
+            </strong>
+          </span>
+          <span className="text-slate-500">
+            eGFR:{' '}
+            <strong
+              className={
+                parseFloat(patientData.labs?.egfr) < 60 ? 'text-amber-500' : 'text-green-600'
+              }
+            >
+              {patientData.labs?.egfr || '--'}
+            </strong>
+          </span>
+          <span className="text-slate-500">
+            BMI: <strong>{patientData.demographics?.bmi ?? '--'}</strong>
+          </span>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="space-y-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 animate-pulse"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-slate-200 rounded-lg" />
+                <div className="flex-1">
+                  <div className="h-4 bg-slate-200 rounded w-40 mb-2" />
+                  <div className="h-3 bg-slate-200 rounded w-24" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isLoading && recommendations.length > 0 && (
+        <div className="space-y-6">
+          {Object.entries(grouped).map(([category, recs]) => (
+            <div key={category}>
+              <h3 className="text-sm font-semibold text-slate-600 mb-2 flex items-center gap-2">
+                <Pill className="w-4 h-4" />
+                {category} ({recs.length})
+              </h3>
+              <div className="space-y-2">
+                {recs.map((rec) => (
+                  <MedicationCard
+                    key={rec.id}
+                    recommendation={rec}
+                    isActioned={!!actionedRecs[rec.id]}
+                    actionBadge={getActionBadge(rec.id)}
+                    onAccept={handleAccept}
+                    onModify={(rec) => setModifyingRec(rec)}
+                    onReject={handleReject}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!isLoading && recommendations.length === 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-10 text-center">
+          <Brain className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <h3 className="font-medium text-slate-600 mb-1">No Recommendations Yet</h3>
+          <p className="text-slate-400 text-sm mb-4">Click Generate to load sample recommendations</p>
+          <button
+            type="button"
+            onClick={generate}
+            className="px-5 py-2 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm"
+          >
+            Generate Recommendations
+          </button>
+        </div>
+      )}
+
+      {Object.keys(actionedRecs).length > 0 && (
+        <div className="mt-6 p-4 bg-slate-100 rounded-xl">
+          <h4 className="font-semibold text-slate-700 mb-3 text-sm">Decision Summary</h4>
+          <div className="flex gap-4 text-sm mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-green-500 rounded-full" />
+              <span>Accepted: {Object.values(actionedRecs).filter((a) => a.action === 'accepted').length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full" />
+              <span>Modified: {Object.values(actionedRecs).filter((a) => a.action === 'modified').length}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-red-500 rounded-full" />
+              <span>Rejected: {Object.values(actionedRecs).filter((a) => a.action === 'rejected').length}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="w-full py-2.5 bg-primary-900 text-white rounded-lg text-sm font-medium hover:bg-primary-800"
+          >
+            Submit All Decisions
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Simple modal for "modify" — in production would use dosage options from config
+function ModifyModal({ recommendation, onSave, onClose }) {
+  const [notes, setNotes] = useState('');
+  const [dosage, setDosage] = useState(recommendation.dose || '');
+
+  const handleSave = () => {
+    if (!notes.trim()) return;
+    onSave({
+      ...recommendation,
+      dose: dosage || recommendation.dose,
+      notes: notes.trim(),
+      status: 'modified',
+      modifiedAt: new Date().toISOString(),
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+        <div className="bg-gradient-to-r from-primary-900 to-primary-800 text-white px-6 py-4 flex-shrink-0">
+          <h3 className="text-lg font-bold font-display">Modify Medication</h3>
+          <p className="text-primary-200 text-sm">{recommendation.med}</p>
+        </div>
+        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          <div className="p-3 bg-primary-50 border border-primary-200 rounded-lg">
+            <p className="text-xs text-primary-600 font-medium mb-1">AI Recommended</p>
+            <p className="text-primary-900 font-semibold">{recommendation.dose}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Modified dosage / instructions</label>
+            <input
+              type="text"
+              value={dosage}
+              onChange={(e) => setDosage(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-primary-500 focus:outline-none text-sm"
+              placeholder="e.g. 500mg twice daily"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Modification reason *</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Required for audit trail..."
+              rows={3}
+              className="w-full px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-primary-500 focus:outline-none text-sm resize-none"
+            />
+          </div>
+        </div>
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-3 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-5 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-100 text-sm font-medium"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!notes.trim()}
+            className="px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Save Modification
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/components/ui/Input.jsx">
+import React from 'react';
+
+/**
+ * Reusable Input component for forms.
+ * Works with react-hook-form or standalone.
+ * 
+ * @param {string} label - Field label
+ * @param {string} type - Input type (text, number, date, etc.)
+ * @param {string} value - Current value
+ * @param {function} onChange - Change handler
+ * @param {string} placeholder - Placeholder text
+ * @param {boolean} required - Is field required
+ * @param {string} error - Error message to display
+ * @param {object} register - react-hook-form register function (optional)
+ */
+export default function Input({
+  label,
+  type = 'text',
+  value,
+  onChange,
+  placeholder,
+  required,
+  error,
+  register,
+  name,
+  ...rest
+}) {
+  // If using react-hook-form, use register; otherwise use controlled input
+  const inputProps = register
+    ? register(name, { required: required && `${label} is required` })
+    : {
+        value,
+        onChange: (e) => onChange(e.target.value),
+      };
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-1.5">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </label>
+      <input
+        type={type}
+        {...inputProps}
+        className={`w-full px-3 py-2 border rounded-lg focus:outline-none text-sm transition-colors ${
+          error
+            ? 'border-red-500 focus:border-red-500'
+            : 'border-slate-200 focus:border-primary-500'
+        }`}
+        placeholder={placeholder}
+        {...rest}
+      />
+      {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+    </div>
+  );
+}
+</file>
+
+<file path="src/data/dummyData.js">
+/**
+ * Dummy data for GLYERAL UI — frontend-only mock.
+ * Replace with API calls when backend is ready.
+ */
+
+// ——— PATIENTS (dashboard list + search) ———
+export const PATIENTS = [
+  {
+    id: 1,
+    mrNumber: 'MR-2024-001',
+    name: 'John Smith',
+    age: 58,
+    gender: 'Male',
+    lastVisit: '2024-12-15',
+    hba1c: '8.2',
+  },
+  {
+    id: 2,
+    mrNumber: 'MR-2024-002',
+    name: 'Maria Garcia',
+    age: 62,
+    gender: 'Female',
+    lastVisit: '2024-12-18',
+    hba1c: '7.5',
+  },
+  {
+    id: 3,
+    mrNumber: 'MR-2024-003',
+    name: 'Robert Johnson',
+    age: 45,
+    gender: 'Male',
+    lastVisit: '2024-12-19',
+    hba1c: '9.1',
+  },
+  {
+    id: 4,
+    mrNumber: 'MR-2024-004',
+    name: 'Sarah Chen',
+    age: 51,
+    gender: 'Female',
+    lastVisit: '2024-12-10',
+    hba1c: '6.8',
+  },
+  {
+    id: 5,
+    mrNumber: 'MR-2024-005',
+    name: 'James Wilson',
+    age: 67,
+    gender: 'Male',
+    lastVisit: '2024-12-12',
+    hba1c: '7.9',
+  },
+];
+
+// ——— DASHBOARD STATS (KPIs) ———
+export const DASHBOARD_STATS = [
+  { value: '12', label: 'Patients Today', color: 'primary' },
+  { value: '3', label: 'Pending Reviews', color: 'amber' },
+  { value: '89%', label: 'Acceptance Rate', color: 'green' },
+];
+
+// ——— SAMPLE RECOMMENDATIONS (for one patient profile) ———
+export const SAMPLE_RECOMMENDATIONS = [
+  {
+    id: 1,
+    med: 'Metformin',
+    dose: '1000mg twice daily',
+    originalDosage: '1000mg',
+    confidence: 95,
+    status: 'approved',
+    guidelines: ['ADA 2025 First-line therapy'],
+    warnings: [],
+    category: 'Oral',
+  },
+  {
+    id: 2,
+    med: 'Farxiga',
+    dose: '10mg once daily',
+    originalDosage: '10mg',
+    confidence: 88,
+    status: 'approved',
+    guidelines: ['KDIGO 2024: CKD benefit', 'AHA: Heart failure protection'],
+    warnings: [],
+    category: 'Oral',
+  },
+  {
+    id: 3,
+    med: 'Semaglutide',
+    dose: '0.5mg weekly → titrate to 1mg',
+    originalDosage: '0.5mg',
+    confidence: 88,
+    status: 'approved',
+    guidelines: ['ADA: Weight loss benefit', 'AHA: CV risk reduction'],
+    warnings: ['Start low, titrate slowly for GI tolerance'],
+    category: 'Injectable',
+  },
+  {
+    id: 4,
+    med: 'Glargine (Before Dinner)',
+    dose: '10 units before dinner',
+    originalDosage: '10 units',
+    confidence: 78,
+    status: 'approved',
+    guidelines: ['ADA: Basal insulin when HbA1c > 9%'],
+    warnings: [],
+    category: 'Insulin',
+  },
+  {
+    id: 5,
+    med: 'Glimepiride',
+    dose: '2mg once daily before breakfast',
+    originalDosage: '2mg',
+    confidence: 55,
+    status: 'warning',
+    guidelines: ['Second-line if Metformin intolerant'],
+    warnings: ['Hypoglycemia risk', 'Weight gain potential'],
+    category: 'Oral',
+  },
+];
+
+// ——— AUDIT TRAIL (compliance log) ———
+export const AUDIT_LOGS = [
+  {
+    id: 'REQ-001',
+    time: '2024-12-19 14:32',
+    status: 'Approved',
+    meds: 'Metformin 1000mg, Semaglutide 0.5mg',
+    confidence: 91,
+    action: 'Accepted - Dr. Smith',
+  },
+  {
+    id: 'REQ-002',
+    time: '2024-12-18 09:15',
+    status: 'Modified',
+    meds: 'Glargine 15u → 10u',
+    confidence: 85,
+    action: 'Reduced - patient preference',
+  },
+  {
+    id: 'REQ-003',
+    time: '2024-12-17 16:45',
+    status: 'Rejected',
+    meds: 'Glimepiride 4mg',
+    confidence: 52,
+    action: 'Hypoglycemia history',
+  },
+  {
+    id: 'REQ-004',
+    time: '2024-12-16 11:20',
+    status: 'Approved',
+    meds: 'Farxiga 10mg, Tradjenta 5mg',
+    confidence: 87,
+    action: 'Accepted - Dr. Lee',
+  },
+];
+
+// ——— NAV ITEMS (sidebar when patient selected) ———
+export const NAV_ITEMS = [
+  { id: 'demographics', iconId: 'User', label: 'Demographics' },
+  { id: 'conditions', iconId: 'Activity', label: 'Health Issues' },
+  { id: 'labs', iconId: 'FlaskConical', label: 'Lab Values' },
+  { id: 'glucose', iconId: 'Droplets', label: 'Blood Sugar' },
+  { id: 'medications', iconId: 'Pill', label: 'Medications' },
+  { id: 'recommendations', iconId: 'Brain', label: 'AI Recommendations' },
+  { id: 'audit', iconId: 'FileText', label: 'Audit Trail' },
+];
+
+// ——— EMPTY PATIENT FORM STATE (for "New Patient") ———
+export const EMPTY_PATIENT_DATA = {
+  demographics: {
+    mrNumber: '',
+    firstName: '',
+    lastName: '',
+    dob: '',
+    gender: '',
+    age: 0,
+    weight: '',
+    height: '',
+    bmi: 0,
+  },
+  healthIssues: {
+    dm: true,
+    ckd: false,
+    cad: false,
+    hypertension: false,
+    pregnancy: false,
+    neuropathy: false,
+    retinopathy: false,
+    obesity: false,
+  },
+  labs: {
+    hba1c: '',
+    egfr: '',
+    creatinine: '',
+    lipidPanel: '',
+    urineAlbumin: '',
+  },
+  bloodSugar: {
+    beforeBreakfast: '',
+    beforeLunch: '',
+    beforeDinner: '',
+    beforeBed: '',
+    average: 0,
+  },
+  medications: {
+    metformin: 0,
+    glimepiride: 0,
+    tradjenta: false,
+    farxiga: 0,
+    semaglutide: 0,
+    glargine: 0,
+  },
+};
+</file>
+
+<file path="src/index.css">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Focus ring for accessibility */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary-500;
+}
+</file>
+
+<file path="src/main.jsx">
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+</file>
+
+<file path="tailwind.config.js">
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        display: ['Outfit', 'system-ui', 'sans-serif'],
+      },
+      colors: {
+        primary: {
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+          950: '#172554',
+        },
+      },
+    },
+  },
+  plugins: [],
+}
+</file>
+
+<file path="vite.config.js">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+</files>
