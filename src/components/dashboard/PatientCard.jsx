@@ -2,33 +2,54 @@ import React from 'react';
 import { User, ChevronRight } from 'lucide-react';
 
 /**
- * Single patient row for the dashboard list.
- * Shows avatar, name, MR#, age, gender, HbA1c; click selects patient.
+ * Premium patient row with HbA1c status indicator bar and hover lift effect.
  */
 export default function PatientCard({ patient, onSelect }) {
   const hba1cNum = parseFloat(patient.hba1c);
-  const hba1cClass = hba1cNum > 7 ? 'text-red-500' : 'text-green-600';
+  const statusColor =
+    hba1cNum > 9
+      ? 'bg-red-500'
+      : hba1cNum > 7
+        ? 'bg-amber-500'
+        : 'bg-green-500';
+  const hba1cBadge =
+    hba1cNum > 7
+      ? 'bg-red-50 text-red-600'
+      : 'bg-green-50 text-green-700';
 
   return (
     <button
       type="button"
       onClick={() => onSelect(patient)}
-      className="w-full px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-center gap-3 transition text-left rounded-lg focus:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30"
+      className="w-full px-4 py-3.5 hover:bg-primary-50/40 cursor-pointer flex items-center gap-3 transition-all duration-200 text-left focus:bg-primary-50/40 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:ring-inset group relative"
     >
-      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-        <User className="w-5 h-5 text-primary-900" />
+      {/* Status indicator bar */}
+      <div
+        className={`absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full ${statusColor} opacity-60 group-hover:opacity-100 transition-opacity`}
+      />
+
+      <div className="w-10 h-10 bg-gradient-to-br from-primary-50 to-secondary-50 border border-primary-100/60 rounded-full flex items-center justify-center flex-shrink-0">
+        <User className="w-5 h-5 text-primary-700" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-slate-800 truncate">{patient.name}</p>
+        <p className="font-semibold text-slate-800 truncate group-hover:text-primary-800 transition-colors">
+          {patient.name}
+        </p>
         <p className="text-xs text-slate-500">
           {patient.mrNumber} • {patient.age}y • {patient.gender}
         </p>
       </div>
       <div className="text-right flex-shrink-0">
-        <p className="text-xs text-slate-400">HbA1c</p>
-        <p className={`text-sm font-bold ${hba1cClass}`}>{patient.hba1c}%</p>
+        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-wide">
+          HbA1c
+        </p>
+        <p
+          className={`text-sm font-bold px-2 py-0.5 rounded-full ${hba1cBadge}`}
+        >
+          {patient.hba1c}%
+        </p>
       </div>
-      <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+      <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0 group-hover:text-primary-500 group-hover:translate-x-0.5 transition-all" />
     </button>
   );
 }

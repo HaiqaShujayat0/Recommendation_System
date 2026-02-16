@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { AlertTriangle, ChevronRight } from 'lucide-react';
+import { AlertTriangle, ChevronRight, Droplets } from 'lucide-react';
+import FormCard from '../ui/FormCard';
+import Button from '../ui/Button';
 
 /**
  * Glucose Form Component with Validation
- * 
+ *
  * VALIDATION RULES:
- * - All fields optional (patient may not have all readings)
- * - If entered, must be valid number: 0-600 mg/dL (reasonable range)
+ * - All fields optional
+ * - If entered, must be valid number: 0-600 mg/dL
  * - Auto-calculates average from non-empty readings
  */
 
@@ -17,6 +19,8 @@ const TIME_SLOTS = [
   { key: 'beforeDinner', label: 'Before Dinner', target: '80-130' },
   { key: 'beforeBed', label: 'Before Bed', target: '100-140' },
 ];
+
+const SLOT_KEYS = TIME_SLOTS.map((s) => s.key);
 
 export default function GlucoseForm({ data, setData, onNext }) {
   const {
@@ -30,16 +34,14 @@ export default function GlucoseForm({ data, setData, onNext }) {
     mode: 'onChange',
   });
 
-  const watchedData = watch();
+  const beforeBreakfast = watch('beforeBreakfast');
+  const beforeLunch = watch('beforeLunch');
+  const beforeDinner = watch('beforeDinner');
+  const beforeBed = watch('beforeBed');
 
-  // Auto-calculate average
+  // Auto-calculate average from individual watched fields
   useEffect(() => {
-    const readings = [
-      watchedData.beforeBreakfast,
-      watchedData.beforeLunch,
-      watchedData.beforeDinner,
-      watchedData.beforeBed,
-    ]
+    const readings = [beforeBreakfast, beforeLunch, beforeDinner, beforeBed]
       .filter((v) => v && !isNaN(parseFloat(v)))
       .map((v) => parseFloat(v));
 
@@ -48,62 +50,83 @@ export default function GlucoseForm({ data, setData, onNext }) {
       : 0;
 
     setValue('average', average, { shouldValidate: false });
-  }, [
-    watchedData.beforeBreakfast,
-    watchedData.beforeLunch,
-    watchedData.beforeDinner,
-    watchedData.beforeBed,
-    setValue,
-  ]);
+  }, [beforeBreakfast, beforeLunch, beforeDinner, beforeBed, setValue]);
 
-  // Sync form data with parent state
+  // Sync form → parent via watch subscription (optimized)
   useEffect(() => {
-    setData({ ...data, bloodSugar: watchedData });
-  }, [watchedData]);
+    const subscription = watch((formValues) => {
+      setData((prev) => ({ ...prev, bloodSugar: formValues }));
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setData]);
 
-  const getColor = (value) => {
-    if (!value) return 'border-slate-200';
+  const getColor = useCallback((value) => {
+    if (!value) return 'border-slate-200/80 bg-white/60';
     const v = parseFloat(value);
+    if (v < 70) return 'border-red-400 bg-gradient-to-r from-red-50 to-rose-50/50';
+    if (v <= 140) return 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50/50';
+    if (v <= 180) return 'border-amber-400 bg-gradient-to-r from-amber-50 to-yellow-50/50';
+    return 'border-red-400 bg-gradient-to-r from-red-50 to-rose-50/50';
+  }, []);
 
-    if (v < 70) return 'border-red-500 bg-red-50';
-    if (v <= 140) return 'border-green-500 bg-green-50';
-    if (v <= 180) return 'border-amber-500 bg-amber-50';
-    return 'border-red-500 bg-red-50';
-  };
+  const hasHypo = useMemo(() => {
+    return [beforeBreakfast, beforeLunch, beforeDinner, beforeBed].some(
+      (v) => v && parseFloat(v) < 70
+    );
+  }, [beforeBreakfast, beforeLunch, beforeDinner, beforeBed]);
 
-  const hasHypo = Object.values(watchedData).some((v) => v && parseFloat(v) < 70);
-
-  const getAverageColor = (average) => {
-    if (!average) return 'bg-slate-100';
-    if (average <= 154) return 'bg-green-100';
-    return 'bg-amber-100';
-  };
+  const getAverageColor = useCallback((average) => {
+    if (!average) return 'bg-gradient-to-r from-slate-50 to-slate-100';
+    if (average <= 154) return 'bg-gradient-to-r from-green-50 to-emerald-100';
+    return 'bg-gradient-to-r from-amber-50 to-amber-100';
+  }, []);
 
   const onSubmit = (formData) => {
-    setData({ ...data, bloodSugar: formData });
+    setData((prev) => ({ ...prev, bloodSugar: formData }));
     onNext();
   };
 
   const average = watch('average');
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Daily Blood Sugar</h2>
-        <p className="text-slate-500 text-sm">Enter glucose readings in mg/dL</p>
-      </div>
+    <div className="max-w-3xl mx-auto">
+      <FormCard
+        title="Daily Blood Sugar"
+        subtitle="Optional home glucose readings to contextualize lab values."
+        accentColor="primary"
+      >
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          {/* Card header */}
+          <div className="px-4 py-3.5 -mx-5 -mt-5 md:-mx-6 md:-mt-6 mb-5 bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-100/60 rounded-t-2xl">
+            <div className="flex items-center gap-2">
+              <Droplets className="w-5 h-5 text-primary-600" />
+              <h3 className="text-base md:text-lg font-bold text-primary-900">
+                Blood Glucose Monitoring
+              </h3>
+            </div>
+            <p className="text-xs md:text-sm text-primary-700/70 ml-7">
+              Monitor blood glucose levels and trends across the day.
+            </p>
+          </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-          <div className="space-y-3">
+          <div className="space-y-3.5 stagger-children">
             {TIME_SLOTS.map(({ key, label, target }) => {
               const value = watch(key);
               const error = errors[key];
 
               return (
-                <div key={key} className="flex items-center gap-3">
-                  <div className="w-32 text-sm text-slate-700 font-medium">{label}</div>
-                  <div className={`flex-1 flex items-center border-2 rounded-lg transition-colors ${getColor(value)}`}>
+                <div
+                  key={key}
+                  className="flex flex-col gap-1.5 md:flex-row md:items-center md:gap-3"
+                >
+                  <div className="w-full md:w-40 text-sm text-slate-700 font-semibold">
+                    {label}
+                  </div>
+                  <div
+                    className={`flex-1 flex items-center border-2 rounded-xl transition-all duration-300 ${getColor(
+                      value
+                    )}`}
+                  >
                     <input
                       type="number"
                       {...register(key, {
@@ -117,36 +140,71 @@ export default function GlucoseForm({ data, setData, onNext }) {
                         },
                         valueAsNumber: true,
                       })}
-                      className="flex-1 px-3 py-2 bg-transparent focus:outline-none text-center font-mono text-sm"
+                      className="flex-1 px-3.5 py-2.5 bg-transparent focus:outline-none text-center font-mono text-sm font-medium"
                       placeholder="--"
                     />
-                    <span className="px-3 text-slate-400 text-xs">mg/dL</span>
+                    <span className="px-3 text-slate-400 text-xs font-semibold">
+                      mg/dL
+                    </span>
                   </div>
-                  <div className="w-20 text-xs text-slate-400">{target}</div>
+                  <div className="w-full md:w-28 text-xs text-slate-400 md:text-right font-medium">
+                    Target {target}
+                  </div>
                   {error && (
-                    <p className="text-xs text-red-600 absolute mt-8 ml-32">{error.message}</p>
+                    <p className="text-xs text-red-600 animate-fade-in">
+                      {error.message}
+                    </p>
                   )}
                 </div>
               );
             })}
 
+            {/* Status legend */}
+            <div className="mt-3 rounded-xl bg-gradient-to-r from-slate-50/80 to-white/60 px-4 py-3 flex flex-wrap gap-4 text-xs border border-slate-100/80">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-gradient-to-br from-red-400 to-red-600 shadow-sm" />
+                <span className="font-semibold text-slate-700">Hypoglycemia</span>
+                <span className="text-slate-500">&lt; 70 mg/dL</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm" />
+                <span className="font-semibold text-slate-700">Normal</span>
+                <span className="text-slate-500">70-140 mg/dL</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 shadow-sm" />
+                <span className="font-semibold text-slate-700">Hyperglycemia</span>
+                <span className="text-slate-500">&gt; 180 mg/dL</span>
+              </div>
+            </div>
+
             {/* Average Display */}
-            <div className="flex items-center gap-3 pt-3 border-t border-slate-200">
+            <div className="flex items-center gap-3 pt-3 border-t border-slate-200/60">
               <div className="w-32 text-sm font-bold text-slate-700">Average</div>
-              <div className={`flex-1 flex items-center justify-center py-2 rounded-lg ${getAverageColor(average)}`}>
-                <span className="text-xl font-bold font-mono text-slate-800">{average || '--'}</span>
+              <div
+                className={`flex-1 flex items-center justify-center py-2.5 rounded-xl ${getAverageColor(
+                  average
+                )} border border-slate-100/80 transition-all duration-300`}
+              >
+                <span className="text-xl font-bold font-mono text-slate-800">
+                  {average || '--'}
+                </span>
                 <span className="ml-2 text-slate-500 text-sm">mg/dL</span>
               </div>
-              <div className="w-20 text-xs text-slate-400">&lt;154</div>
+              <div className="w-20 text-xs text-slate-400 font-medium">&lt;154</div>
             </div>
           </div>
 
           {/* Hypoglycemia Warning */}
           {hasHypo && (
-            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse flex-shrink-0" />
+            <div className="mt-4 p-3.5 bg-gradient-to-r from-red-50 to-rose-50 border border-red-200/60 rounded-xl flex items-center gap-3 animate-fade-in">
+              <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" />
+              </div>
               <div>
-                <p className="font-medium text-red-700 text-sm">Hypoglycemia Detected</p>
+                <p className="font-bold text-red-700 text-sm">
+                  Hypoglycemia Detected
+                </p>
                 <p className="text-xs text-red-600">Reading below 70 mg/dL</p>
               </div>
             </div>
@@ -154,15 +212,15 @@ export default function GlucoseForm({ data, setData, onNext }) {
 
           {/* Navigation */}
           <div className="mt-6 flex justify-end">
-            <button
+            <Button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors"
+              icon={<ChevronRight className="w-4 h-4" />}
             >
-              Next: Medications <ChevronRight className="w-4 h-4" />
-            </button>
+              Next: Medications
+            </Button>
           </div>
-        </div>
-      </form>
+        </form>
+      </FormCard>
     </div>
   );
 }

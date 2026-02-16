@@ -1,146 +1,62 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { Brain, ChevronRight } from 'lucide-react';
+import { Brain, ChevronRight, Pill } from 'lucide-react';
+import FormCard from '../ui/FormCard';
+import Button from '../ui/Button';
 
 /**
  * Medications Form Component with Validation
- * 
+ *
  * VALIDATION RULES:
- * - All medications optional (patient may not be on all meds)
- * - If entered, must be within specified ranges:
- *   - Metformin: 0-2000mg (slider)
- *   - Glimepiride: 0-4mg (select)
- *   - Tradjenta: toggle (on/off)
- *   - Farxiga: 0, 5, or 10mg (select)
- *   - Semaglutide: 0-2mg (slider)
- *   - Insulins: 0-100 units (number)
- *   - Repaglinide: 0, 0.5, 1, 1.5, or 2mg (select)
+ * - All medications optional
+ * - If entered, must be within specified ranges
  */
 
 const MEDICATIONS = [
-  {
-    key: 'metformin',
-    label: 'Metformin',
-    class: 'Biguanide',
-    range: '500-2000mg',
-    type: 'slider',
-    min: 0,
-    max: 2000,
-    step: 250,
-  },
-  {
-    key: 'glimepiride',
-    label: 'Glimepiride',
-    class: 'Sulfonylurea',
-    range: '1-4mg',
-    type: 'select',
-    options: [0, 1, 2, 3, 4],
-  },
-  {
-    key: 'tradjenta',
-    label: 'Tradjenta',
-    class: 'DPP-4i',
-    range: '5mg',
-    type: 'toggle',
-  },
-  {
-    key: 'farxiga',
-    label: 'Farxiga',
-    class: 'SGLT2i',
-    range: '5-10mg',
-    type: 'select',
-    options: [0, 5, 10],
-  },
-  {
-    key: 'semaglutide',
-    label: 'Semaglutide (Ozempic)',
-    class: 'GLP-1 RA',
-    range: '0.25-2mg',
-    type: 'slider',
-    min: 0,
-    max: 2,
-    step: 0.25,
-  },
-  {
-    key: 'glargine',
-    label: 'Glargine (Before Dinner)',
-    class: 'Basal Insulin',
-    range: '4-100 units',
-    type: 'number',
-    min: 0,
-    max: 100,
-  },
-  {
-    key: 'lispro_breakfast',
-    label: 'Lispro (Before Breakfast)',
-    class: 'Bolus Insulin',
-    range: '4-100 units',
-    type: 'number',
-    min: 0,
-    max: 100,
-  },
-  {
-    key: 'lispro_lunch',
-    label: 'Lispro (Before Lunch)',
-    class: 'Bolus Insulin',
-    range: '4-100 units',
-    type: 'number',
-    min: 0,
-    max: 100,
-  },
-  {
-    key: 'lispro_dinner',
-    label: 'Lispro (Before Dinner)',
-    class: 'Bolus Insulin',
-    range: '4-100 units',
-    type: 'number',
-    min: 0,
-    max: 100,
-  },
-  {
-    key: 'repaglinide_breakfast',
-    label: 'Repaglinide (Before Breakfast)',
-    class: 'Meglitinide',
-    range: '0.5-2mg',
-    type: 'select',
-    options: [0, 0.5, 1, 1.5, 2],
-  },
-  {
-    key: 'repaglinide_lunch',
-    label: 'Repaglinide (Before Lunch)',
-    class: 'Meglitinide',
-    range: '0.5-2mg',
-    type: 'select',
-    options: [0, 0.5, 1, 1.5, 2],
-  },
-  {
-    key: 'repaglinide_dinner',
-    label: 'Repaglinide (Before Dinner)',
-    class: 'Meglitinide',
-    range: '0.5-2mg',
-    type: 'select',
-    options: [0, 0.5, 1, 1.5, 2],
-  },
+  { key: 'metformin', label: 'Metformin', class: 'Biguanide', range: '500-2000mg', type: 'slider', min: 0, max: 2000, step: 250 },
+  { key: 'glimepiride', label: 'Glimepiride', class: 'Sulfonylurea', range: '1-4mg', type: 'select', options: [0, 1, 2, 3, 4] },
+  { key: 'tradjenta', label: 'Tradjenta', class: 'DPP-4i', range: '5mg', type: 'toggle' },
+  { key: 'farxiga', label: 'Farxiga', class: 'SGLT2i', range: '5-10mg', type: 'select', options: [0, 5, 10] },
+  { key: 'semaglutide', label: 'Semaglutide (Ozempic)', class: 'GLP-1 RA', range: '0.25-2mg', type: 'slider', min: 0, max: 2, step: 0.25 },
+  { key: 'glargine', label: 'Glargine (Before Dinner)', class: 'Basal Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+  { key: 'lispro_breakfast', label: 'Lispro (Before Breakfast)', class: 'Bolus Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+  { key: 'lispro_lunch', label: 'Lispro (Before Lunch)', class: 'Bolus Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+  { key: 'lispro_dinner', label: 'Lispro (Before Dinner)', class: 'Bolus Insulin', range: '4-100 units', type: 'number', min: 0, max: 100 },
+  { key: 'repaglinide_breakfast', label: 'Repaglinide (Before Breakfast)', class: 'Meglitinide', range: '0.5-2mg', type: 'select', options: [0, 0.5, 1, 1.5, 2] },
+  { key: 'repaglinide_lunch', label: 'Repaglinide (Before Lunch)', class: 'Meglitinide', range: '0.5-2mg', type: 'select', options: [0, 0.5, 1, 1.5, 2] },
+  { key: 'repaglinide_dinner', label: 'Repaglinide (Before Dinner)', class: 'Meglitinide', range: '0.5-2mg', type: 'select', options: [0, 0.5, 1, 1.5, 2] },
 ];
 
 export default function MedicationsForm({ data, setData, onNext }) {
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
     defaultValues: data.medications,
     mode: 'onChange',
   });
 
-  // Sync form data with parent state
-  const watchedData = watch();
+  // Sync form → parent via watch subscription (optimized)
   useEffect(() => {
-    setData({ ...data, medications: watchedData });
-  }, [watchedData]);
+    const subscription = watch((formValues) => {
+      setData((prev) => ({ ...prev, medications: formValues }));
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setData]);
 
-  const update = (key, value) => {
+  const update = useCallback((key, value) => {
     setValue(key, value);
-  };
+  }, [setValue]);
+
+  const clearAll = useCallback(() => {
+    MEDICATIONS.forEach(({ key }) => setValue(key, 0));
+  }, [setValue]);
 
   const renderMedicationInput = (med) => {
-    const { key, label, range, type, options, min, max, step } = med;
+    const { key, type, options, min, max, step } = med;
     const value = watch(key);
     const error = errors[key];
 
@@ -151,13 +67,18 @@ export default function MedicationsForm({ data, setData, onNext }) {
             <button
               type="button"
               onClick={() => update(key, !value)}
-              className={`px-3 py-1 rounded-full text-xs font-medium transition flex-shrink-0 ${
-                value ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-600'
-              }`}
+              className={`relative w-14 h-7 rounded-full transition-all duration-300 flex-shrink-0 ${value
+                  ? 'bg-gradient-to-r from-green-400 to-green-600 shadow-md shadow-green-500/20'
+                  : 'bg-slate-200'
+                }`}
+              aria-label={`${med.label} ${value ? 'on' : 'off'}`}
             >
-              {value ? 'ON' : 'OFF'}
+              <span
+                className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-300 ${value ? 'left-[30px]' : 'left-0.5'
+                  }`}
+              />
             </button>
-            <input type="hidden" {...register(key)} value={value} />
+            <input type="hidden" {...register(key)} value={value ? 1 : 0} />
           </div>
         );
 
@@ -166,47 +87,50 @@ export default function MedicationsForm({ data, setData, onNext }) {
           <div>
             <select
               {...register(key, {
-                min: { value: 0, message: 'Invalid value' },
                 valueAsNumber: true,
               })}
-              className="px-2 py-1 border border-slate-200 rounded text-sm flex-shrink-0 focus:border-primary-500 focus:outline-none"
+              className="px-3 py-2 border-2 border-slate-200/80 rounded-xl text-sm flex-shrink-0 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 bg-white/60 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 font-medium"
             >
               {options.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt === 0 ? 'None' : `${opt}${key.includes('repaglinide') ? 'mg' : 'mg'}`}
+                  {opt === 0 ? 'None' : `${opt}mg`}
                 </option>
               ))}
             </select>
-            {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+            {error && (
+              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+            )}
           </div>
         );
 
       case 'slider':
         return (
           <div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-3 flex-shrink-0">
               <input
                 type="range"
                 min={min}
                 max={max}
                 step={step}
                 {...register(key, {
-                  min: { value: min, message: `Minimum: ${min}mg` },
-                  max: { value: max, message: `Maximum: ${max}mg` },
                   valueAsNumber: true,
                 })}
-                className="w-20"
+                className="w-24"
               />
-              <span className="w-14 text-right text-xs font-mono text-slate-700">{value}mg</span>
+              <span className="w-16 text-right text-xs font-bold font-mono text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full">
+                {value || 0}{key === 'semaglutide' ? 'mg' : 'mg'}
+              </span>
             </div>
-            {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+            {error && (
+              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+            )}
           </div>
         );
 
       case 'number':
         return (
           <div>
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <input
                 type="number"
                 min={min}
@@ -216,12 +140,14 @@ export default function MedicationsForm({ data, setData, onNext }) {
                   max: { value: max, message: `Maximum: ${max} units` },
                   valueAsNumber: true,
                 })}
-                className="w-16 px-2 py-1 border border-slate-200 rounded text-sm text-right focus:border-primary-500 focus:outline-none"
+                className="w-18 px-2.5 py-1.5 border-2 border-slate-200/80 rounded-xl text-sm text-right focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 bg-white/60 backdrop-blur-sm transition-all duration-200 font-medium"
                 placeholder="0"
               />
-              <span className="text-xs text-slate-500">u</span>
+              <span className="text-xs text-slate-500 font-semibold">u</span>
             </div>
-            {error && <p className="text-xs text-red-600 mt-1">{error.message}</p>}
+            {error && (
+              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+            )}
           </div>
         );
 
@@ -231,29 +157,46 @@ export default function MedicationsForm({ data, setData, onNext }) {
   };
 
   const onSubmit = (formData) => {
-    setData({ ...data, medications: formData });
+    setData((prev) => ({ ...prev, medications: formData }));
     onNext();
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Current Medications</h2>
-        <p className="text-slate-500 text-sm">Enter current diabetes medications</p>
-      </div>
+    <div className="max-w-4xl mx-auto">
+      <FormCard
+        title="Current Medications"
+        subtitle="Document all current diabetes agents and insulin doses."
+        accentColor="primary"
+      >
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          {/* Card header */}
+          <div className="px-4 py-3.5 -mx-5 -mt-5 md:-mx-6 md:-mt-6 mb-5 bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-100/60 rounded-t-2xl">
+            <div className="flex items-center gap-2">
+              <Pill className="w-5 h-5 text-primary-600" />
+              <h3 className="text-base md:text-lg font-bold text-primary-900">
+                Medication Regimen
+              </h3>
+            </div>
+            <p className="text-xs md:text-sm text-primary-700/70 ml-7">
+              Adjust doses and combinations based on current regimen.
+            </p>
+          </div>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 stagger-children">
             {MEDICATIONS.map((med) => (
               <div
                 key={med.key}
-                className="p-3 border border-slate-200 rounded-lg hover:border-slate-300 transition-colors"
+                className="p-3.5 border-2 border-primary-100/50 rounded-xl bg-gradient-to-br from-primary-50/30 to-secondary-50/20 hover:border-primary-200 hover:shadow-sm transition-all duration-200 group"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-slate-800 text-sm truncate">{med.label}</p>
-                    <p className="text-xs text-slate-500">{med.range}</p>
+                    <p className="font-semibold text-slate-900 text-sm truncate group-hover:text-primary-800 transition-colors">
+                      {med.label}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      <span className="text-primary-600/70 font-medium">{med.class}</span>{' '}
+                      • {med.range}
+                    </p>
                   </div>
                   {renderMedicationInput(med)}
                 </div>
@@ -261,18 +204,33 @@ export default function MedicationsForm({ data, setData, onNext }) {
             ))}
           </div>
 
-          {/* Navigation */}
-          <div className="mt-6 flex justify-end">
-            <button
-              type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
-            >
-              <Brain className="w-4 h-4" />
-              Get AI Recommendations
-            </button>
+          {/* Footer */}
+          <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-xs text-slate-500">
+              Tip: Leave a field at{' '}
+              <span className="font-bold text-slate-600">0</span> or{' '}
+              <span className="font-bold text-slate-600">None</span> if the
+              patient is not on that medication.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={clearAll}
+              >
+                Clear All
+              </Button>
+              <Button
+                type="submit"
+                icon={<Brain className="w-4 h-4" />}
+              >
+                Get AI Recommendations
+              </Button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </FormCard>
     </div>
   );
 }

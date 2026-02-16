@@ -106,7 +106,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50/40 via-sky-50/50 to-secondary-50/30 flex flex-col">
       <Header
         selectedPatient={selectedPatient}
         onMenuClick={toggleSidebar}
@@ -119,10 +119,16 @@ export default function App() {
             onBackToSearch={backToSearch}
             patientData={patientData}
             open={sidebarOpen}
+            onToggle={toggleSidebar}
           />
         )}
-        <main className="flex-1 overflow-auto p-4 md:p-6" role="main">
-          {renderMain()}
+        <main
+          className="flex-1 overflow-auto px-4 py-4 md:px-8 md:py-6"
+          role="main"
+        >
+          <div className="max-w-6xl mx-auto space-y-4">
+            {renderMain()}
+          </div>
         </main>
       </div>
     </div>

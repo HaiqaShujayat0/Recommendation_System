@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
+import FormCard from '../ui/FormCard';
+import Button from '../ui/Button';
 
 /**
  * Conditions Form Component with Validation
- * 
+ *
  * VALIDATION RULES:
  * - DM (Diabetes Mellitus) must always be checked (required)
  * - Other conditions are optional
- * - At least DM must be selected (enforced by default value)
  */
 
 const CONDITIONS = [
@@ -57,55 +58,60 @@ const CONDITIONS = [
 ];
 
 export default function ConditionsForm({ data, setData, onNext }) {
-  const { watch, setValue, handleSubmit, formState: { isValid } } = useForm({
+  const {
+    watch,
+    setValue,
+    handleSubmit,
+  } = useForm({
     defaultValues: data.healthIssues,
     mode: 'onChange',
   });
 
-  // Sync form data with parent state
-  const watchedData = watch();
+  // Sync form → parent via watch subscription (optimized)
   useEffect(() => {
-    setData({ ...data, healthIssues: watchedData });
-  }, [watchedData]);
+    const subscription = watch((formValues) => {
+      setData((prev) => ({ ...prev, healthIssues: formValues }));
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setData]);
 
   // Ensure DM is always checked
+  const dmValue = watch('dm');
   useEffect(() => {
-    if (!watchedData.dm) {
+    if (!dmValue) {
       setValue('dm', true);
     }
-  }, [watchedData.dm, setValue]);
+  }, [dmValue, setValue]);
 
-  const toggle = (key) => {
-    if (key === 'dm') return; // DM cannot be unchecked
-    setValue(key, !watchedData[key]);
-  };
+  const toggle = useCallback((key) => {
+    if (key === 'dm') return;
+    setValue(key, !watch(key));
+  }, [setValue, watch]);
 
   const onSubmit = (formData) => {
-    setData({ ...data, healthIssues: formData });
+    setData((prev) => ({ ...prev, healthIssues: formData }));
     onNext();
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Health Issues & Conditions</h2>
-        <p className="text-slate-500 text-sm">Select all applicable conditions</p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-          <div className="space-y-2">
+    <div className="max-w-3xl mx-auto">
+      <FormCard
+        title="Health Issues &amp; Conditions"
+        subtitle="Capture comorbidities that influence medication choice and dosing."
+        accentColor="secondary"
+      >
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-2.5 stagger-children">
             {CONDITIONS.map(({ key, label, desc, required, warning }) => {
               const isChecked = watch(key);
               return (
                 <div
                   key={key}
                   onClick={() => toggle(key)}
-                  className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-center gap-3 ${
-                    isChecked
-                      ? 'border-primary-500 bg-primary-50'
-                      : 'border-slate-200 hover:border-slate-300'
-                  } ${required ? 'cursor-not-allowed opacity-75' : ''}`}
+                  className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex items-center gap-3 group ${isChecked
+                      ? 'border-primary-400 bg-gradient-to-r from-primary-50/80 to-secondary-50/40 shadow-sm'
+                      : 'border-slate-200/80 hover:border-primary-200 hover:bg-primary-50/20'
+                    } ${required ? 'cursor-not-allowed' : ''}`}
                   role="button"
                   tabIndex={required ? -1 : 0}
                   onKeyDown={(e) => {
@@ -116,26 +122,29 @@ export default function ConditionsForm({ data, setData, onNext }) {
                   }}
                 >
                   <div
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
-                      isChecked ? 'border-primary-500 bg-primary-500' : 'border-slate-300 bg-white'
-                    }`}
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isChecked
+                        ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600 shadow-sm'
+                        : 'border-slate-300 bg-white group-hover:border-primary-300'
+                      }`}
                   >
-                    {isChecked && <CheckCircle className="w-3 h-3 text-white" />}
+                    {isChecked && (
+                      <CheckCircle className="w-3 h-3 text-white animate-check-bounce" />
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-800 text-sm">{label}</p>
+                    <p className="font-semibold text-slate-800 text-sm">{label}</p>
                     <p className="text-xs text-slate-500">{desc}</p>
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {required && (
-                      <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full font-medium">
+                      <span className="px-2.5 py-0.5 bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] rounded-full font-semibold border border-red-200/60">
                         Required
                       </span>
                     )}
                     {warning && isChecked && (
-                      <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] rounded-full flex items-center gap-1 font-medium">
+                      <span className="px-2.5 py-0.5 bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] rounded-full flex items-center gap-1 font-semibold border border-red-200/60">
                         <AlertTriangle className="w-3 h-3" />
                         Blocks Oral
                       </span>
@@ -148,15 +157,15 @@ export default function ConditionsForm({ data, setData, onNext }) {
 
           {/* Navigation */}
           <div className="mt-6 flex justify-end">
-            <button
+            <Button
               type="submit"
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors"
+              icon={<ChevronRight className="w-4 h-4" />}
             >
-              Next: Lab Values <ChevronRight className="w-4 h-4" />
-            </button>
+              Next: Lab Values
+            </Button>
           </div>
-        </div>
-      </form>
+        </form>
+      </FormCard>
     </div>
   );
 }

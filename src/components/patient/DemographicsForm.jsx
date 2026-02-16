@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { Scale, ChevronRight } from 'lucide-react';
 import Input from '../ui/Input';
+import FormCard from '../ui/FormCard';
+import Button from '../ui/Button';
 
 /**
  * Demographics Form Component with Validation
- * 
+ *
  * VALIDATION RULES:
  * - MR Number: Required, format MR-YYYY-XXX
  * - First Name: Required, min 2 characters
@@ -14,9 +16,13 @@ import Input from '../ui/Input';
  * - Gender: Required (Male/Female)
  * - Weight: Required, 20-300 kg
  * - Height: Required, 100-250 cm
- * 
+ *
  * Auto-calculates: Age (from DOB), BMI (from weight/height)
  */
+
+// Today's date string for HTML max attribute on date inputs
+const TODAY_ISO = new Date().toISOString().split('T')[0];
+
 export default function DemographicsForm({ data, setData, onNext }) {
   const {
     register,
@@ -26,10 +32,9 @@ export default function DemographicsForm({ data, setData, onNext }) {
     formState: { errors, isValid },
   } = useForm({
     defaultValues: data.demographics,
-    mode: 'onChange', // Validate on every change
+    mode: 'onChange',
   });
 
-  // Watch weight and height for BMI calculation
   const weight = watch('weight');
   const height = watch('height');
   const dob = watch('dob');
@@ -46,7 +51,7 @@ export default function DemographicsForm({ data, setData, onNext }) {
       ) {
         age--;
       }
-      setValue('age', age, { shouldValidate: false });
+      setValue('age', age >= 0 ? age : 0, { shouldValidate: false });
     }
   }, [dob, setValue]);
 
@@ -62,33 +67,32 @@ export default function DemographicsForm({ data, setData, onNext }) {
     }
   }, [weight, height, setValue]);
 
-  // Sync form data with parent state
-  const watchedData = watch();
+  // Sync form → parent via watch subscription (optimized — avoids stale closure)
   useEffect(() => {
-    setData({ ...data, demographics: watchedData });
-  }, [watchedData]);
+    const subscription = watch((formValues) => {
+      setData((prev) => ({ ...prev, demographics: formValues }));
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setData]);
 
-  /**
-   * Get BMI styling based on value
-   */
-  const getBmiStyle = (bmi) => {
-    if (!bmi) return 'bg-slate-100 text-slate-500';
-    if (bmi < 18.5) return 'bg-amber-100 text-amber-700';
-    if (bmi < 25) return 'bg-green-100 text-green-700';
-    if (bmi < 30) return 'bg-amber-100 text-amber-700';
-    return 'bg-red-100 text-red-700';
-  };
+  const getBmiStyle = useCallback((bmi) => {
+    if (!bmi) return 'bg-slate-100/80 text-slate-500 border-slate-200';
+    if (bmi < 18.5) return 'bg-amber-50 text-amber-700 border-amber-200';
+    if (bmi < 25) return 'bg-green-50 text-green-700 border-green-200';
+    if (bmi < 30) return 'bg-amber-50 text-amber-700 border-amber-200';
+    return 'bg-red-50 text-red-700 border-red-200';
+  }, []);
 
-  const getBmiLabel = (bmi) => {
+  const getBmiLabel = useCallback((bmi) => {
     if (!bmi) return '';
     if (bmi >= 30) return ' (Obese)';
     if (bmi >= 25) return ' (Overweight)';
     if (bmi >= 18.5) return ' (Normal)';
     return ' (Underweight)';
-  };
+  }, []);
 
   const onSubmit = (formData) => {
-    setData({ ...data, demographics: formData });
+    setData((prev) => ({ ...prev, demographics: formData }));
     onNext();
   };
 
@@ -96,15 +100,14 @@ export default function DemographicsForm({ data, setData, onNext }) {
   const currentAge = watch('age');
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-5">
-        <h2 className="text-xl font-bold text-slate-800 font-display">Patient Demographics</h2>
-        <p className="text-slate-500 text-sm">Basic information for the care plan</p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-5">
-          <div className="grid grid-cols-2 gap-4">
+    <div className="max-w-3xl mx-auto">
+      <FormCard
+        title="Patient Demographics"
+        subtitle="Core identifiers and anthropometrics used across the care journey."
+        accentColor="primary"
+      >
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger-children">
             <Input
               label="MR Number"
               {...register('mrNumber', {
@@ -148,11 +151,16 @@ export default function DemographicsForm({ data, setData, onNext }) {
             <Input
               label="Date of Birth"
               type="date"
+              max={TODAY_ISO}
               {...register('dob', {
                 required: 'Date of Birth is required',
                 validate: (value) => {
+                  if (!value) return 'Date of Birth is required';
                   const birth = new Date(value);
                   const today = new Date();
+                  if (isNaN(birth.getTime())) {
+                    return 'Please enter a valid date';
+                  }
                   if (birth > today) {
                     return 'Date of Birth cannot be in the future';
                   }
@@ -169,32 +177,38 @@ export default function DemographicsForm({ data, setData, onNext }) {
 
             {/* Gender Selection */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                Gender <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-slate-700 mb-2">
+                Gender <span className="text-red-400">*</span>
               </label>
-              <div className="flex gap-4">
+              <div className="flex gap-3">
                 {['Male', 'Female'].map((g) => (
-                  <label key={g} className="flex items-center gap-2 cursor-pointer">
+                  <label
+                    key={g}
+                    className="flex items-center gap-2.5 cursor-pointer px-4 py-2.5 rounded-xl border-2 border-slate-200/80 hover:border-primary-300 transition-all duration-200 bg-white/60 backdrop-blur-sm has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50/50"
+                  >
                     <input
                       type="radio"
                       value={g}
                       {...register('gender', { required: 'Gender is required' })}
-                      className="w-4 h-4 text-primary-900 focus:ring-primary-500"
                     />
-                    <span className="text-sm text-slate-700">{g}</span>
+                    <span className="text-sm font-medium text-slate-700">{g}</span>
                   </label>
                 ))}
               </div>
               {errors.gender && (
-                <p className="text-xs text-red-600 mt-1">{errors.gender.message}</p>
+                <p className="text-xs text-red-600 mt-1.5 animate-fade-in">
+                  {errors.gender.message}
+                </p>
               )}
             </div>
 
-            {/* Age Display (read-only, auto-calculated) */}
+            {/* Age Display */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Age</label>
-              <div className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-600 text-sm">
-                {currentAge || '--'} years
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Age
+              </label>
+              <div className="px-3.5 py-2.5 bg-gradient-to-r from-slate-50 to-slate-100/80 border-2 border-slate-200/60 rounded-xl text-slate-600 text-sm font-medium">
+                {currentAge != null && currentAge >= 0 ? currentAge : '--'} years
               </div>
             </div>
 
@@ -238,13 +252,15 @@ export default function DemographicsForm({ data, setData, onNext }) {
               required
             />
 
-            {/* BMI Display (read-only, auto-calculated) */}
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">BMI (Calculated)</label>
+            {/* BMI Display */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                BMI (Calculated)
+              </label>
               <span
-                className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${getBmiStyle(
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold border ${getBmiStyle(
                   currentBmi
-                )}`}
+                )} transition-all duration-300`}
               >
                 <Scale className="w-4 h-4" />
                 {currentBmi || '--'} kg/m²
@@ -255,16 +271,16 @@ export default function DemographicsForm({ data, setData, onNext }) {
 
           {/* Navigation */}
           <div className="mt-6 flex justify-end">
-            <button
+            <Button
               type="submit"
               disabled={!isValid}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary-900 text-white rounded-lg hover:bg-primary-800 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              icon={<ChevronRight className="w-4 h-4" />}
             >
-              Next: Health Issues <ChevronRight className="w-4 h-4" />
-            </button>
+              Next: Health Issues
+            </Button>
           </div>
-        </div>
-      </form>
+        </form>
+      </FormCard>
     </div>
   );
 }
