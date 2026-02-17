@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Brain,
-  SendHorizonal,
+  Send,
   ChevronLeft,
   ChevronRight,
   User,
@@ -314,7 +314,7 @@ export default function AIChatPanel({
             className="w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center hover:bg-primary-700 active:scale-95 transition-all disabled:opacity-40 disabled:hover:bg-primary-600 shadow-sm hover:shadow-md"
             aria-label="Send message"
           >
-            <SendHorizonal className="w-4 h-4" />
+            <Send className="w-4 h-4" />
           </button>
         </div>
         <p className="text-[10px] text-slate-400 mt-1.5 text-center">
