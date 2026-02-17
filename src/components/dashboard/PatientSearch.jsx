@@ -6,7 +6,7 @@ import StatsCards from './StatsCards';
 import Button from '../ui/Button';
 
 /**
- * Premium dashboard: search input, stats, filtered patient list.
+ * Clean dashboard: search input, stats, filtered patient list.
  */
 export default function PatientSearch({ onSelectPatient, onNewPatient }) {
   const [search, setSearch] = useState('');
@@ -23,11 +23,11 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
   return (
     <div className="max-w-5xl mx-auto space-y-5 animate-fade-in">
       {/* Hero area */}
-      <div className="glass-card rounded-2xl px-5 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative overflow-hidden">
+      <div className="card px-5 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative overflow-hidden">
         {/* Gradient accent bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-secondary-400 to-primary-600" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-400 to-accent-500" />
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 font-display">
+          <h2 className="text-2xl font-bold text-slate-900">
             Patient Workspace
           </h2>
           <p className="text-slate-500 text-sm mt-0.5">
@@ -44,7 +44,7 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
       </div>
 
       {/* Main content card */}
-      <div className="glass-card-solid rounded-2xl p-5 space-y-5">
+      <div className="card-elevated p-5 space-y-5">
         {/* Search input */}
         <div className="relative group">
           <Search
@@ -56,7 +56,7 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
             placeholder="Search by name or MR number..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 border-2 border-slate-200/80 rounded-xl focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 text-base bg-white/60 backdrop-blur-sm transition-all duration-200 hover:border-slate-300"
+            className="w-full pl-12 pr-4 py-3.5 border-2 border-slate-200 rounded-xl focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/15 text-base bg-white transition-all duration-200 hover:border-slate-300"
             aria-label="Search patients"
           />
         </div>
@@ -64,8 +64,8 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
         <StatsCards />
 
         {/* Patient list */}
-        <div className="bg-gradient-to-b from-slate-50/80 to-white/40 rounded-xl border border-slate-100/80 overflow-hidden backdrop-blur-sm">
-          <div className="px-4 py-3 border-b border-slate-100/80 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200/80 overflow-hidden">
+          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
             <h3 className="font-semibold text-slate-700 text-sm">
               Recent Patients
             </h3>
@@ -73,7 +73,7 @@ export default function PatientSearch({ onSelectPatient, onNewPatient }) {
               {filtered.length} record{filtered.length !== 1 && 's'}
             </span>
           </div>
-          <div className="divide-y divide-slate-100/60 stagger-children">
+          <div className="divide-y divide-slate-100 stagger-children">
             {filtered.length === 0 ? (
               <div className="px-4 py-10 text-center text-slate-500 text-sm">
                 No patients match your search.

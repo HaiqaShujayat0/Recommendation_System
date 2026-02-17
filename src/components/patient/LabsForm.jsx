@@ -46,15 +46,15 @@ export default function LabsForm({ data, setData, onNext }) {
     if (!value) {
       switch (key) {
         case 'hba1c':
-          return 'border-amber-200/80 bg-gradient-to-br from-amber-50/60 to-amber-50/30';
+          return 'border-amber-200 bg-amber-50/40';
         case 'egfr':
-          return 'border-secondary-200/80 bg-gradient-to-br from-secondary-50/60 to-secondary-50/30';
+          return 'border-secondary-200 bg-secondary-50/40';
         case 'creatinine':
-          return 'border-sky-200/80 bg-gradient-to-br from-sky-50/60 to-sky-50/30';
+          return 'border-sky-200 bg-sky-50/40';
         case 'lipidPanel':
-          return 'border-accent-200/80 bg-gradient-to-br from-accent-50/60 to-accent-50/30';
+          return 'border-purple-200 bg-purple-50/40';
         case 'urineAlbumin':
-          return 'border-violet-200/80 bg-gradient-to-br from-violet-50/60 to-violet-50/30';
+          return 'border-violet-200 bg-violet-50/40';
         default:
           return 'border-slate-200 bg-slate-50';
       }
@@ -63,15 +63,15 @@ export default function LabsForm({ data, setData, onNext }) {
     const v = parseFloat(value);
 
     if (key === 'hba1c') {
-      if (v < 5.7) return 'border-primary-400 bg-gradient-to-br from-primary-50 to-green-50/50';
-      if (v < 7) return 'border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50/50';
-      return 'border-red-400 bg-gradient-to-br from-red-50 to-rose-50/50';
+      if (v < 5.7) return 'border-green-400 bg-green-50/50';
+      if (v < 7) return 'border-amber-400 bg-amber-50/50';
+      return 'border-red-400 bg-red-50/50';
     }
 
     if (key === 'egfr') {
-      if (v >= 90) return 'border-primary-400 bg-gradient-to-br from-primary-50 to-green-50/50';
-      if (v >= 60) return 'border-amber-400 bg-gradient-to-br from-amber-50 to-yellow-50/50';
-      return 'border-red-400 bg-gradient-to-br from-red-50 to-rose-50/50';
+      if (v >= 90) return 'border-green-400 bg-green-50/50';
+      if (v >= 60) return 'border-amber-400 bg-amber-50/50';
+      return 'border-red-400 bg-red-50/50';
     }
 
     return 'border-slate-200 bg-slate-50';
@@ -80,11 +80,11 @@ export default function LabsForm({ data, setData, onNext }) {
   const getCkdStage = useCallback((egfr) => {
     if (!egfr) return null;
     const v = parseFloat(egfr);
-    if (v >= 90) return { stage: '1', label: 'Normal', color: 'from-green-500 to-emerald-600 text-white' };
-    if (v >= 60) return { stage: '2', label: 'Mild', color: 'from-amber-400 to-amber-600 text-white' };
-    if (v >= 30) return { stage: '3', label: 'Moderate', color: 'from-orange-400 to-orange-600 text-white' };
-    if (v >= 15) return { stage: '4', label: 'Severe', color: 'from-red-400 to-red-600 text-white' };
-    return { stage: '5', label: 'Failure', color: 'from-red-500 to-red-700 text-white' };
+    if (v >= 90) return { stage: '1', label: 'Normal', color: 'bg-green-600 text-white' };
+    if (v >= 60) return { stage: '2', label: 'Mild', color: 'bg-amber-500 text-white' };
+    if (v >= 30) return { stage: '3', label: 'Moderate', color: 'bg-orange-500 text-white' };
+    if (v >= 15) return { stage: '4', label: 'Severe', color: 'bg-red-500 text-white' };
+    return { stage: '5', label: 'Failure', color: 'bg-red-700 text-white' };
   }, []);
 
   const onSubmit = (formData) => {
@@ -114,7 +114,7 @@ export default function LabsForm({ data, setData, onNext }) {
                   <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-1.5">
                     {label}
                     {critical && (
-                      <span className="px-2 py-0.5 bg-gradient-to-r from-primary-100 to-primary-50 text-primary-700 text-[10px] rounded-full font-semibold border border-primary-200/60">
+                      <span className="px-2 py-0.5 bg-primary-50 text-primary-700 text-[10px] rounded-full font-semibold border border-primary-200">
                         PRIMARY
                       </span>
                     )}
@@ -157,7 +157,10 @@ export default function LabsForm({ data, setData, onNext }) {
                     </span>
                   </div>
                   {error && (
-                    <p className="text-xs text-red-600 mt-1 animate-fade-in">
+                    <p className="flex items-center gap-1.5 text-xs text-red-600 mt-1.5 animate-fade-in font-medium">
+                      <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
                       {error.message}
                     </p>
                   )}
@@ -171,14 +174,14 @@ export default function LabsForm({ data, setData, onNext }) {
 
           {/* CKD Stage Display */}
           {ckd && (
-            <div className="mt-5 p-3.5 bg-gradient-to-r from-slate-50/80 to-white/60 rounded-xl flex items-center gap-3 border border-slate-100/80 backdrop-blur-sm animate-fade-in">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-secondary-100 to-secondary-50 flex items-center justify-center flex-shrink-0">
+            <div className="mt-5 p-3.5 bg-slate-50 rounded-xl flex items-center gap-3 border border-slate-200 animate-fade-in">
+              <div className="w-9 h-9 rounded-lg bg-secondary-100 flex items-center justify-center flex-shrink-0">
                 <Activity className="w-5 h-5 text-secondary-700" />
               </div>
               <div>
                 <p className="text-xs text-slate-500 font-medium mb-1">CKD Stage</p>
                 <span
-                  className={`inline-flex px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${ckd.color} shadow-sm`}
+                  className={`inline-flex px-3 py-1 rounded-full text-xs font-bold ${ckd.color} shadow-sm`}
                 >
                   Stage {ckd.stage}: {ckd.label}
                 </span>

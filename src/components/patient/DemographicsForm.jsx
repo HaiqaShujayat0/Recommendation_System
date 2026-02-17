@@ -76,7 +76,7 @@ export default function DemographicsForm({ data, setData, onNext }) {
   }, [watch, setData]);
 
   const getBmiStyle = useCallback((bmi) => {
-    if (!bmi) return 'bg-slate-100/80 text-slate-500 border-slate-200';
+    if (!bmi) return 'bg-slate-100 text-slate-500 border-slate-200';
     if (bmi < 18.5) return 'bg-amber-50 text-amber-700 border-amber-200';
     if (bmi < 25) return 'bg-green-50 text-green-700 border-green-200';
     if (bmi < 30) return 'bg-amber-50 text-amber-700 border-amber-200';
@@ -184,7 +184,7 @@ export default function DemographicsForm({ data, setData, onNext }) {
                 {['Male', 'Female'].map((g) => (
                   <label
                     key={g}
-                    className="flex items-center gap-2.5 cursor-pointer px-4 py-2.5 rounded-xl border-2 border-slate-200/80 hover:border-primary-300 transition-all duration-200 bg-white/60 backdrop-blur-sm has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50/50"
+                    className="flex items-center gap-2.5 cursor-pointer px-4 py-2.5 rounded-xl border-2 border-slate-200 hover:border-primary-300 transition-all duration-200 bg-white has-[:checked]:border-primary-500 has-[:checked]:bg-primary-50/50"
                   >
                     <input
                       type="radio"
@@ -196,7 +196,10 @@ export default function DemographicsForm({ data, setData, onNext }) {
                 ))}
               </div>
               {errors.gender && (
-                <p className="text-xs text-red-600 mt-1.5 animate-fade-in">
+                <p className="flex items-center gap-1.5 text-xs text-red-600 mt-1.5 animate-fade-in font-medium">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
                   {errors.gender.message}
                 </p>
               )}
@@ -207,7 +210,7 @@ export default function DemographicsForm({ data, setData, onNext }) {
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 Age
               </label>
-              <div className="px-3.5 py-2.5 bg-gradient-to-r from-slate-50 to-slate-100/80 border-2 border-slate-200/60 rounded-xl text-slate-600 text-sm font-medium">
+              <div className="px-3.5 py-2.5 bg-slate-50 border-2 border-slate-200 rounded-xl text-slate-600 text-sm font-medium">
                 {currentAge != null && currentAge >= 0 ? currentAge : '--'} years
               </div>
             </div>

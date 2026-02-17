@@ -2,7 +2,7 @@ import React from 'react';
 import { User, ChevronRight } from 'lucide-react';
 
 /**
- * Premium patient row with HbA1c status indicator bar and hover lift effect.
+ * Clean patient row — NexHR-inspired list item with avatar initials.
  */
 export default function PatientCard({ patient, onSelect }) {
   const hba1cNum = parseFloat(patient.hba1c);
@@ -11,11 +11,19 @@ export default function PatientCard({ patient, onSelect }) {
       ? 'bg-red-500'
       : hba1cNum > 7
         ? 'bg-amber-500'
-        : 'bg-green-500';
+        : 'bg-emerald-500';
   const hba1cBadge =
     hba1cNum > 7
-      ? 'bg-red-50 text-red-600'
-      : 'bg-green-50 text-green-700';
+      ? 'bg-red-50 text-red-600 border border-red-200/60'
+      : 'bg-green-50 text-green-700 border border-green-200/60';
+
+  // Get initials
+  const initials = patient.name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <button
@@ -28,11 +36,12 @@ export default function PatientCard({ patient, onSelect }) {
         className={`absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full ${statusColor} opacity-60 group-hover:opacity-100 transition-opacity`}
       />
 
-      <div className="w-10 h-10 bg-gradient-to-br from-primary-50 to-secondary-50 border border-primary-100/60 rounded-full flex items-center justify-center flex-shrink-0">
-        <User className="w-5 h-5 text-primary-700" />
+      {/* Avatar with initials — NexHR style */}
+      <div className="w-10 h-10 bg-primary-100 border border-primary-200/60 rounded-full flex items-center justify-center flex-shrink-0">
+        <span className="text-sm font-bold text-primary-700">{initials}</span>
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-semibold text-slate-800 truncate group-hover:text-primary-800 transition-colors">
+        <p className="font-semibold text-slate-800 truncate group-hover:text-primary-700 transition-colors">
           {patient.name}
         </p>
         <p className="text-xs text-slate-500">

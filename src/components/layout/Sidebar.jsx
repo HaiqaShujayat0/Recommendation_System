@@ -24,10 +24,8 @@ const iconMap = {
 };
 
 /**
- * Premium collapsible sidebar with smooth animation.
- * - `open` prop controls collapsed (false) vs expanded (true) state.
- * - Sidebar always renders in DOM for smooth CSS transition.
- * - Collapse button is always visible even when collapsed.
+ * Clean collapsible sidebar — white background, purple active states.
+ * NexHR-inspired: left purple bar on active item, clean icon-only collapsed state.
  */
 export default function Sidebar({
   currentScreen,
@@ -39,7 +37,6 @@ export default function Sidebar({
 }) {
   const sidebarRef = useRef(null);
 
-  // Lock focus inside sidebar on mobile when open (a11y)
   useEffect(() => {
     if (open && sidebarRef.current) {
       const first = sidebarRef.current.querySelector('button, a, [tabIndex]');
@@ -50,15 +47,15 @@ export default function Sidebar({
   return (
     <aside
       ref={sidebarRef}
-      className={`bg-white/80 backdrop-blur-xl shadow-glass-lg flex-shrink-0 border-r border-slate-100/80 transition-all duration-300 ease-in-out overflow-hidden ${open ? 'w-60' : 'w-14'
+      className={`bg-white shadow-sidebar flex-shrink-0 border-r border-slate-100 transition-all duration-300 ease-in-out overflow-hidden ${open ? 'w-60' : 'w-14'
         }`}
     >
       <div className="h-full flex flex-col relative">
-        {/* Collapse toggle — always visible */}
+        {/* Collapse toggle */}
         <button
           type="button"
           onClick={onToggle}
-          className="absolute top-3 right-2 z-10 w-8 h-8 rounded-lg bg-white/80 backdrop-blur-sm border border-slate-200/60 flex items-center justify-center text-slate-400 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200 shadow-sm"
+          className="absolute top-3 right-2 z-10 w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary-700 hover:bg-primary-50 transition-all duration-200"
           aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
         >
           <ChevronLeft
@@ -67,7 +64,7 @@ export default function Sidebar({
           />
         </button>
 
-        {/* Sidebar content — hidden when collapsed */}
+        {/* Sidebar content */}
         <div
           className={`p-4 w-60 h-full flex flex-col gap-4 transition-opacity duration-200 ${open ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
@@ -75,7 +72,7 @@ export default function Sidebar({
           <button
             type="button"
             onClick={onBackToSearch}
-            className="flex items-center gap-2 text-slate-400 hover:text-primary-700 text-xs font-semibold w-full transition-colors duration-200 group"
+            className="flex items-center gap-2 text-slate-400 hover:text-primary-600 text-xs font-semibold w-full transition-colors duration-200 group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
             Back to Search
@@ -94,17 +91,17 @@ export default function Sidebar({
                   key={id}
                   type="button"
                   onClick={() => onNavigate(id)}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative overflow-hidden ${isActive
-                      ? 'bg-gradient-to-r from-primary-800 to-primary-900 text-white shadow-md shadow-primary-900/20'
-                      : 'text-slate-600 hover:bg-primary-50/60 hover:text-primary-800'
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${isActive
+                    ? 'bg-primary-50 text-primary-700 font-semibold'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-primary-600'
                     }`}
                 >
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary-300 rounded-r-full" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-primary-500 rounded-r-full" />
                   )}
                   {Icon && (
                     <Icon
-                      className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-primary-200' : ''
+                      className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-primary-500' : ''
                         }`}
                     />
                   )}
@@ -116,8 +113,8 @@ export default function Sidebar({
 
           {/* Key Clinical Snapshot */}
           {patientData && (
-            <div className="mt-auto p-3.5 bg-gradient-to-br from-primary-50/80 to-secondary-50/60 rounded-xl border border-primary-100/60 backdrop-blur-sm">
-              <h4 className="text-[10px] font-bold text-primary-700/70 uppercase mb-2.5 flex items-center gap-1.5 tracking-wide">
+            <div className="mt-auto p-3.5 bg-primary-50 rounded-xl border border-primary-100">
+              <h4 className="text-[10px] font-bold text-primary-600 uppercase mb-2.5 flex items-center gap-1.5 tracking-wide">
                 <TrendingUp className="w-3 h-3" />
                 Clinical Snapshot
               </h4>
@@ -126,8 +123,8 @@ export default function Sidebar({
                   <span className="text-slate-500 font-medium">HbA1c</span>
                   <span
                     className={`font-bold px-2 py-0.5 rounded-full text-[11px] ${parseFloat(patientData.labs?.hba1c) > 7
-                        ? 'bg-red-100 text-red-600'
-                        : 'bg-green-100 text-green-700'
+                      ? 'bg-red-100 text-red-600'
+                      : 'bg-green-100 text-green-700'
                       }`}
                   >
                     {patientData.labs?.hba1c || '--'}%
@@ -137,8 +134,8 @@ export default function Sidebar({
                   <span className="text-slate-500 font-medium">eGFR</span>
                   <span
                     className={`font-bold px-2 py-0.5 rounded-full text-[11px] ${parseFloat(patientData.labs?.egfr) < 60
-                        ? 'bg-amber-100 text-amber-600'
-                        : 'bg-green-100 text-green-700'
+                      ? 'bg-amber-100 text-amber-600'
+                      : 'bg-green-100 text-green-700'
                       }`}
                   >
                     {patientData.labs?.egfr || '--'}
@@ -148,10 +145,10 @@ export default function Sidebar({
                   <span className="text-slate-500 font-medium">BMI</span>
                   <span
                     className={`font-bold px-2 py-0.5 rounded-full text-[11px] ${patientData.demographics?.bmi > 30
-                        ? 'bg-red-100 text-red-600'
-                        : patientData.demographics?.bmi > 25
-                          ? 'bg-amber-100 text-amber-600'
-                          : 'bg-green-100 text-green-700'
+                      ? 'bg-red-100 text-red-600'
+                      : patientData.demographics?.bmi > 25
+                        ? 'bg-amber-100 text-amber-600'
+                        : 'bg-green-100 text-green-700'
                       }`}
                   >
                     {patientData.demographics?.bmi ?? '--'}
@@ -174,8 +171,8 @@ export default function Sidebar({
                   type="button"
                   onClick={() => onNavigate(id)}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${isActive
-                      ? 'bg-gradient-to-r from-primary-800 to-primary-900 text-white shadow-md'
-                      : 'text-slate-400 hover:bg-primary-50 hover:text-primary-700'
+                    ? 'bg-primary-50 text-primary-600 shadow-sm'
+                    : 'text-slate-400 hover:bg-slate-50 hover:text-primary-600'
                     }`}
                   title={id}
                 >

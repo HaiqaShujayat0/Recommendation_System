@@ -106,7 +106,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50/40 via-sky-50/50 to-secondary-50/30 flex flex-col">
+    <div className="min-h-screen bg-[#f5f3ff] flex flex-col">
       <Header
         selectedPatient={selectedPatient}
         onMenuClick={toggleSidebar}

@@ -2,14 +2,8 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 /**
- * Premium button component with consistent styling across the app.
- *
- * @param {'primary'|'secondary'|'accent'|'outline'|'ghost'|'danger'} variant
- * @param {'sm'|'md'|'lg'} size
- * @param {boolean} loading
- * @param {boolean} pill – rounded-full shape
- * @param {React.ReactNode} icon – optional leading icon
- * @param {React.ReactNode} children
+ * Clean button component with purple primary theme.
+ * Supports variant, size, loading, and pill props.
  */
 export default function Button({
     variant = 'primary',
@@ -23,21 +17,23 @@ export default function Button({
     ...rest
 }) {
     const baseClasses =
-        'inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none select-none';
+        'inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none select-none';
 
     const variants = {
         primary:
-            'bg-gradient-to-r from-primary-700 to-primary-900 text-white shadow-md hover:shadow-glow-primary hover:from-primary-600 hover:to-primary-800 focus-visible:ring-primary-500 active:scale-[0.98]',
+            'bg-primary-600 text-white shadow-md hover:bg-primary-700 hover:shadow-lg focus-visible:ring-primary-500 active:scale-[0.98]',
         secondary:
-            'bg-gradient-to-r from-secondary-600 to-secondary-800 text-white shadow-md hover:shadow-glow-primary hover:from-secondary-500 hover:to-secondary-700 focus-visible:ring-secondary-500 active:scale-[0.98]',
+            'bg-secondary-600 text-white shadow-md hover:bg-secondary-700 focus-visible:ring-secondary-500 active:scale-[0.98]',
         accent:
-            'bg-gradient-to-r from-accent-500 to-accent-700 text-white shadow-md hover:shadow-glow-accent hover:from-accent-400 hover:to-accent-600 focus-visible:ring-accent-500 active:scale-[0.98]',
+            'bg-accent-500 text-white shadow-md hover:bg-accent-600 focus-visible:ring-accent-500 active:scale-[0.98]',
+        success:
+            'bg-emerald-600 text-white shadow-md hover:bg-emerald-700 focus-visible:ring-emerald-500 active:scale-[0.98]',
         outline:
-            'border-2 border-slate-200 text-slate-700 bg-white/60 backdrop-blur hover:border-primary-300 hover:bg-primary-50/50 focus-visible:ring-primary-500 active:scale-[0.98]',
+            'border-2 border-slate-200 text-slate-700 bg-white hover:border-primary-300 hover:bg-primary-50/50 hover:text-primary-700 focus-visible:ring-primary-500 active:scale-[0.98]',
         ghost:
-            'text-slate-600 hover:bg-slate-100/80 hover:text-slate-800 focus-visible:ring-slate-500',
+            'text-slate-600 hover:bg-slate-100 hover:text-slate-800 focus-visible:ring-slate-500',
         danger:
-            'bg-gradient-to-r from-red-500 to-red-700 text-white shadow-md hover:from-red-400 hover:to-red-600 focus-visible:ring-red-500 active:scale-[0.98]',
+            'bg-red-600 text-white shadow-md hover:bg-red-700 focus-visible:ring-red-500 active:scale-[0.98]',
     };
 
     const sizes = {

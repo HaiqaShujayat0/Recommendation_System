@@ -1,8 +1,8 @@
 import React from 'react';
 
 /**
- * Reusable Input component for forms — premium styling.
- * Works with react-hook-form or standalone.
+ * Reusable Input component — clean medical-portal styling.
+ * Purple focus ring, clear error states.
  */
 const Input = React.forwardRef(
   (
@@ -42,9 +42,9 @@ const Input = React.forwardRef(
           id={fieldId}
           aria-invalid={hasError || undefined}
           aria-describedby={errorId}
-          className={`w-full px-3.5 py-2.5 border-2 rounded-xl focus:outline-none text-sm transition-all duration-200 placeholder:text-slate-400 bg-white/60 backdrop-blur-sm ${hasError
-              ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 bg-red-50/30'
-              : 'border-slate-200/80 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300'
+          className={`w-full px-3.5 py-2.5 border-2 rounded-xl focus:outline-none text-sm transition-all duration-200 placeholder:text-slate-400 bg-white ${hasError
+            ? 'border-red-300 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 bg-red-50/40'
+            : 'border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/15 hover:border-slate-300'
             }`}
           placeholder={placeholder}
           value={value}
@@ -53,7 +53,7 @@ const Input = React.forwardRef(
         />
         {hasError && (
           <p
-            className="flex items-center gap-1 text-xs text-red-600 mt-1.5 animate-fade-in"
+            className="flex items-center gap-1.5 text-xs text-red-600 mt-1.5 animate-fade-in font-medium"
             id={errorId}
           >
             <svg

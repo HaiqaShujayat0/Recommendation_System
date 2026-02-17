@@ -109,8 +109,8 @@ export default function ConditionsForm({ data, setData, onNext }) {
                   key={key}
                   onClick={() => toggle(key)}
                   className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 flex items-center gap-3 group ${isChecked
-                      ? 'border-primary-400 bg-gradient-to-r from-primary-50/80 to-secondary-50/40 shadow-sm'
-                      : 'border-slate-200/80 hover:border-primary-200 hover:bg-primary-50/20'
+                    ? 'border-primary-400 bg-primary-50/60 shadow-sm'
+                    : 'border-slate-200 hover:border-primary-200 hover:bg-primary-50/20'
                     } ${required ? 'cursor-not-allowed' : ''}`}
                   role="button"
                   tabIndex={required ? -1 : 0}
@@ -123,8 +123,8 @@ export default function ConditionsForm({ data, setData, onNext }) {
                 >
                   <div
                     className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${isChecked
-                        ? 'border-primary-500 bg-gradient-to-br from-primary-500 to-primary-600 shadow-sm'
-                        : 'border-slate-300 bg-white group-hover:border-primary-300'
+                      ? 'border-primary-500 bg-primary-600 shadow-sm'
+                      : 'border-slate-300 bg-white group-hover:border-primary-300'
                       }`}
                   >
                     {isChecked && (
@@ -139,12 +139,12 @@ export default function ConditionsForm({ data, setData, onNext }) {
 
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {required && (
-                      <span className="px-2.5 py-0.5 bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] rounded-full font-semibold border border-red-200/60">
+                      <span className="px-2.5 py-0.5 bg-red-50 text-red-600 text-[10px] rounded-full font-semibold border border-red-200">
                         Required
                       </span>
                     )}
                     {warning && isChecked && (
-                      <span className="px-2.5 py-0.5 bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] rounded-full flex items-center gap-1 font-semibold border border-red-200/60">
+                      <span className="px-2.5 py-0.5 bg-red-50 text-red-600 text-[10px] rounded-full flex items-center gap-1 font-semibold border border-red-200">
                         <AlertTriangle className="w-3 h-3" />
                         Blocks Oral
                       </span>

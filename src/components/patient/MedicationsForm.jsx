@@ -68,8 +68,8 @@ export default function MedicationsForm({ data, setData, onNext }) {
               type="button"
               onClick={() => update(key, !value)}
               className={`relative w-14 h-7 rounded-full transition-all duration-300 flex-shrink-0 ${value
-                  ? 'bg-gradient-to-r from-green-400 to-green-600 shadow-md shadow-green-500/20'
-                  : 'bg-slate-200'
+                ? 'bg-primary-600 shadow-md shadow-primary-500/20'
+                : 'bg-slate-200'
                 }`}
               aria-label={`${med.label} ${value ? 'on' : 'off'}`}
             >
@@ -89,7 +89,7 @@ export default function MedicationsForm({ data, setData, onNext }) {
               {...register(key, {
                 valueAsNumber: true,
               })}
-              className="px-3 py-2 border-2 border-slate-200/80 rounded-xl text-sm flex-shrink-0 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 bg-white/60 backdrop-blur-sm transition-all duration-200 hover:border-slate-300 font-medium"
+              className="px-3 py-2 border-2 border-slate-200 rounded-xl text-sm flex-shrink-0 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/15 bg-white transition-all duration-200 hover:border-slate-300 font-medium"
             >
               {options.map((opt) => (
                 <option key={opt} value={opt}>
@@ -98,7 +98,7 @@ export default function MedicationsForm({ data, setData, onNext }) {
               ))}
             </select>
             {error && (
-              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+              <p className="text-xs text-red-600 mt-1 font-medium">{error.message}</p>
             )}
           </div>
         );
@@ -117,12 +117,12 @@ export default function MedicationsForm({ data, setData, onNext }) {
                 })}
                 className="w-24"
               />
-              <span className="w-16 text-right text-xs font-bold font-mono text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full">
+              <span className="w-16 text-right text-xs font-bold font-mono text-primary-700 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-200">
                 {value || 0}{key === 'semaglutide' ? 'mg' : 'mg'}
               </span>
             </div>
             {error && (
-              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+              <p className="text-xs text-red-600 mt-1 font-medium">{error.message}</p>
             )}
           </div>
         );
@@ -140,13 +140,13 @@ export default function MedicationsForm({ data, setData, onNext }) {
                   max: { value: max, message: `Maximum: ${max} units` },
                   valueAsNumber: true,
                 })}
-                className="w-18 px-2.5 py-1.5 border-2 border-slate-200/80 rounded-xl text-sm text-right focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 bg-white/60 backdrop-blur-sm transition-all duration-200 font-medium"
+                className="w-18 px-2.5 py-1.5 border-2 border-slate-200 rounded-xl text-sm text-right focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/15 bg-white transition-all duration-200 font-medium"
                 placeholder="0"
               />
               <span className="text-xs text-slate-500 font-semibold">u</span>
             </div>
             {error && (
-              <p className="text-xs text-red-600 mt-1">{error.message}</p>
+              <p className="text-xs text-red-600 mt-1 font-medium">{error.message}</p>
             )}
           </div>
         );
@@ -170,14 +170,14 @@ export default function MedicationsForm({ data, setData, onNext }) {
       >
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           {/* Card header */}
-          <div className="px-4 py-3.5 -mx-5 -mt-5 md:-mx-6 md:-mt-6 mb-5 bg-gradient-to-r from-primary-50 to-secondary-50 border-b border-primary-100/60 rounded-t-2xl">
+          <div className="px-4 py-3.5 -mx-5 -mt-5 md:-mx-6 md:-mt-6 mb-5 bg-primary-50 border-b border-primary-100 rounded-t-2xl">
             <div className="flex items-center gap-2">
               <Pill className="w-5 h-5 text-primary-600" />
               <h3 className="text-base md:text-lg font-bold text-primary-900">
                 Medication Regimen
               </h3>
             </div>
-            <p className="text-xs md:text-sm text-primary-700/70 ml-7">
+            <p className="text-xs md:text-sm text-primary-600/70 ml-7">
               Adjust doses and combinations based on current regimen.
             </p>
           </div>
@@ -186,11 +186,11 @@ export default function MedicationsForm({ data, setData, onNext }) {
             {MEDICATIONS.map((med) => (
               <div
                 key={med.key}
-                className="p-3.5 border-2 border-primary-100/50 rounded-xl bg-gradient-to-br from-primary-50/30 to-secondary-50/20 hover:border-primary-200 hover:shadow-sm transition-all duration-200 group"
+                className="p-3.5 border-2 border-slate-200 rounded-xl bg-white hover:border-primary-200 hover:shadow-sm transition-all duration-200 group"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-slate-900 text-sm truncate group-hover:text-primary-800 transition-colors">
+                    <p className="font-semibold text-slate-900 text-sm truncate group-hover:text-primary-700 transition-colors">
                       {med.label}
                     </p>
                     <p className="text-xs text-slate-500">

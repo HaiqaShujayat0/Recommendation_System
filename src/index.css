@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════
-   GLYERAL — Premium Design System
+   GLYERAL — Clean Medical Design System
+   Purple/Violet • Professional Healthcare
    ═══════════════════════════════════════════════ */
 
 * {
@@ -16,11 +17,12 @@ html {
 
 body {
   margin: 0;
-  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 40%, #ede9fe 100%);
+  background: #f5f3ff;
   min-height: 100vh;
+  color: #1e1b4b;
 }
 
 #root {
@@ -32,22 +34,22 @@ body {
   @apply outline-2 outline-offset-2 outline-primary-500;
 }
 
-/* ─── Glass Card Utility ─── */
+/* ─── Card Utilities ─── */
 @layer components {
-  .glass-card {
-    @apply bg-white/70 backdrop-blur-xl border border-white/30 shadow-glass;
+  .card {
+    @apply bg-white border border-slate-200/80 shadow-card rounded-2xl;
   }
 
-  .glass-card-solid {
-    @apply bg-white/90 backdrop-blur-xl border border-white/40 shadow-glass;
+  .card-elevated {
+    @apply bg-white border border-slate-200/60 shadow-card-md rounded-2xl;
   }
 
-  .glass-card-hover {
-    @apply glass-card transition-all duration-300;
+  .card-hover {
+    @apply card transition-all duration-300;
   }
 
-  .glass-card-hover:hover {
-    @apply shadow-card-hover border-white/50;
+  .card-hover:hover {
+    @apply shadow-card-lg border-primary-200/60;
     transform: translateY(-1px);
   }
 }
@@ -56,13 +58,13 @@ body {
    Custom Form Controls
    ═══════════════════════════════════════════════ */
 
-/* ─── Range Slider (Emerald Track) ─── */
+/* ─── Range Slider (Purple Track) ─── */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #d1fae5, #a7f3d0);
+  background: linear-gradient(90deg, #ede9fe, #ddd6fe);
   outline: none;
   cursor: pointer;
   transition: background 0.2s;
@@ -74,25 +76,25 @@ input[type="range"]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.15);
-  box-shadow: 0 3px 12px rgba(16, 185, 129, 0.5);
+  box-shadow: 0 3px 12px rgba(124, 58, 237, 0.5);
 }
 
 input[type="range"]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   border: 3px solid white;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -124,7 +126,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 input[type="date"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
-  background-color: rgba(16, 185, 129, 0.08);
+  background-color: rgba(124, 58, 237, 0.08);
 }
 
 /* ─── Custom Radio Buttons ─── */
@@ -142,7 +144,7 @@ input[type="radio"] {
 }
 
 input[type="radio"]:checked {
-  border-color: #10b981;
+  border-color: #7c3aed;
   background: white;
 }
 
@@ -155,13 +157,13 @@ input[type="radio"]:checked::after {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   animation: check-bounce 0.3s ease-out;
 }
 
 input[type="radio"]:hover {
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 /* ─── Custom Number Inputs (hide spinners) ─── */
@@ -181,12 +183,12 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(100, 116, 139, 0.2);
+  background: rgba(124, 58, 237, 0.15);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 116, 139, 0.35);
+  background: rgba(124, 58, 237, 0.3);
 }
 
 /* ─── Stagger Animation Children ─── */
