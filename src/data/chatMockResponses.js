@@ -64,7 +64,8 @@ const FALLBACK_RESPONSES = [
  * @param {Array} recommendations - Current medication recommendations
  * @returns {{ response: string, delay: number }}
  */
-export function getMockResponse(message, recommendations = []) {
+export function getMockResponse(message, recommendations) {
+  const recs = recommendations || [];
   const lower = message.toLowerCase().trim();
 
   // Check for drug-specific queries
@@ -86,10 +87,10 @@ export function getMockResponse(message, recommendations = []) {
 
   // Check for general queries
   if (lower.includes('summar') || lower.includes('overview') || lower.includes('all recommendation')) {
-    return { response: GENERAL_RESPONSES.summary(recommendations), delay: 1500 };
+    return { response: GENERAL_RESPONSES.summary(recs), delay: 1500 };
   }
   if (lower.includes('interact') || lower.includes('combination') || lower.includes('together')) {
-    return { response: GENERAL_RESPONSES.interactions(recommendations), delay: 1600 };
+    return { response: GENERAL_RESPONSES.interactions(recs), delay: 1600 };
   }
   if (lower.includes('confidence') || lower.includes('score') || lower.includes('percent')) {
     return { response: GENERAL_RESPONSES.confidence(), delay: 1200 };
@@ -108,7 +109,8 @@ export function getMockResponse(message, recommendations = []) {
  * @param {Array} recommendations - Current medication recommendations
  * @returns {Array<{ label: string, message: string }>}
  */
-export function getQuickChips(recommendations = []) {
+export function getQuickChips(recommendations) {
+  const recs = recommendations || [];
   const chips = [
     { label: 'Summarize all', message: 'Give me a summary of all recommendations' },
     { label: 'Check interactions', message: 'Are there any drug interactions I should know about?' },
@@ -116,7 +118,7 @@ export function getQuickChips(recommendations = []) {
   ];
 
   // Add drug-specific chips for top 2 recommendations
-  const topRecs = [...recommendations].sort((a, b) => b.confidence - a.confidence).slice(0, 2);
+  const topRecs = [...recs].sort((a, b) => b.confidence - a.confidence).slice(0, 2);
   topRecs.forEach(rec => {
     chips.push({
       label: `Why ${rec.med}?`,

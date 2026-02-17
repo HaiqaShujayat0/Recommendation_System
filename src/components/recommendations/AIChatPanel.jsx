@@ -77,7 +77,7 @@ export default function AIChatPanel({
       setIsTyping(true);
 
       // Get mock AI response
-      const { response, delay } = getMockResponse(text, recommendations);
+      const { response, delay } = getMockResponse(text, recommendations || []);
 
       setTimeout(() => {
         const aiMessage = {
@@ -100,7 +100,7 @@ export default function AIChatPanel({
     }
   };
 
-  const quickChips = getQuickChips(recommendations);
+  const quickChips = getQuickChips(recommendations || []);
 
   // Render markdown-like bold text
   const renderContent = (text) => {
